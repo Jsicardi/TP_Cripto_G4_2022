@@ -6,11 +6,11 @@ FLAGS = -Iinclude/ -fsanitize=address -g -pedantic -pedantic-errors -Wall
 
 all: stegobmp
 
-STEGO_OBJ = stegobmp.o args.o
+STEGO_OBJ = stegobmp.o utils/args.o
 
-STEGO_C_FILES = stegobmp.c args.c 
+STEGO_C_FILES = stegobmp.c utils/args.c 
 
-STEGO_H_FILES = include/args.h
+STEGO_H_FILES = include/utils/args.h
 	
 clean:	
 	- rm -rf $(STEGO_OBJ) stegobmp

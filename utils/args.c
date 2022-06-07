@@ -3,7 +3,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/args.h"
+#include "../include/utils/args.h"
 
 void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
 

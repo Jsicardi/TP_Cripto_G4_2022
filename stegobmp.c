@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "include/args.h"
+#include "include/utils/args.h"
 
 struct stegobmp_args * args;
 
