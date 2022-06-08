@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define BMP_HEADER_SIZE 14
+
 typedef struct {
     uint16_t bfType;
     uint32_t bfSize;

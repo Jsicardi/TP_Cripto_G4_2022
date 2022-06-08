@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define BMP_INFO_SIZE 40
+
 typedef struct {
     uint32_t biSize;
     uint32_t biWidth;
