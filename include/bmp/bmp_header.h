@@ -23,4 +23,12 @@ typedef struct {
 
 bool read_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor);
 
+/*
+    Writes the first 14 bytes which correspond to the header of a
+    BMP file V3 (https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapfileheader?redirectedfrom=MSDN)
+    from a BmpHeader structure onto a file_descriptor.
+ */
+
+bool write_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor);
+
 #endif

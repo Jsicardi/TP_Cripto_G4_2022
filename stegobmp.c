@@ -5,7 +5,8 @@
 #include "include/utils/byte_utils.h"
 #include "include/bmp/bmp_file.h"
 
-#define READ_BYTES_MODE "rb"
+#define READ_BYTES_MODE "r"
+#define WRITE_BYTES_MODE "w"
 
 struct stegobmp_args * args;
 
@@ -15,16 +16,13 @@ int main(int argc, char * argv[]){
     parse_args(argc,argv,args);
     printf("Action: %d In-file: %s BMP-file: %s out-file:%s Stego:%d Enc:%d Mode:%d Pass:%s\n", args->action,args->in_file,args->bmp_file,args->out_file,args->steg,args->enc,args->mode,args->password);
     
-    FILE * file_descriptor = fopen(args->bmp_file, READ_BYTES_MODE);
+    FILE * origin_fd      = fopen(args->bmp_file, READ_BYTES_MODE);
+    FILE * destination_fd = fopen(args->out_file, WRITE_BYTES_MODE);
+    
     BmpFile bmp_file;
-    read_bmp_file_metadata(&bmp_file, file_descriptor);
 
-    printf("%d\n", bmp_file.header.bfSize);
-
-    char pixel[3];
-    read_x_bytes(pixel, 3, file_descriptor);
-
-    printf("%d %d %d\n", pixel[0], pixel[1], pixel[2]);
+    copy_bmp_file_metadata(&bmp_file, origin_fd, destination_fd);
+    copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd);
     
     free(args);
 }

@@ -30,4 +30,13 @@ typedef struct {
 
 bool read_bmp_info(BmpInfo *bmp_info, FILE* file_descriptor);
 
+/*
+    Writes the 40 bytes following the BmpHeader from a BmpInfo structure. These bytes describe how the pixel
+    information is stored in file. Some usefull bits include the 32 bit compression field.
+
+    For more information read: https://gibberlings3.github.io/iesdp/file_formats/ie_formats/bmp.htm
+ */
+
+bool write_bmp_info(BmpInfo *bmp_info, FILE* file_descriptor);
+
 #endif
