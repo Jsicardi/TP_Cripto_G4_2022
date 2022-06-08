@@ -43,7 +43,12 @@ bool io_op_to_bmp_file_metadata(BmpFile * bmp_file,
 /*---- META DATA OPS ----*/
 
 bool read_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor){
-    return io_op_to_bmp_file_metadata(bmp_file, &read_bmp_header, &read_bmp_info, file_descriptor);
+    if(!io_op_to_bmp_file_metadata(bmp_file, &read_bmp_header, &read_bmp_info, file_descriptor)) return false;
+    
+    /* Sets bmp_file body structure size to be the file size - the metadata offset */
+    get_bmp_file_body_pixel_count(&((bmp_file->body).pixel_count), &(bmp_file->header));
+
+    return true;
 }
 
 bool write_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor){
@@ -87,9 +92,9 @@ bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor){
 
 bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd){
     Pixel pixel;
-    if(!read_bmp_file_pixel(&pixel, origin_fd))  return false;
-    if(!transformation(&pixel, msg))             return false;
-    if(!write_bmp_file_pixel(&pixel, origin_fd)) return false;
+    if(!read_bmp_file_pixel(&pixel, origin_fd))       return false;
+    if(!transformation(&pixel, msg))                  return false;
+    if(!write_bmp_file_pixel(&pixel, destination_fd)) return false;
 
     /* For security reasons we reset the Pixel values after the transfer*/
     pixel.blue  = 0;
@@ -100,6 +105,18 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * ms
 }
 
 /*---- PIXEL OPS ----*/
+
+
+/*---- BODY OPS ----*/
+
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd){
+    for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
+        if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd)) return false;
+    }
+    return true;
+}
+
+/*---- BODY OPS ----*/
 
 
 

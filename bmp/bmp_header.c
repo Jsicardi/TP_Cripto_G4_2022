@@ -17,3 +17,8 @@ bool read_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor){
 bool write_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor){
     return io_op_to_bmp_header(bmp_header, &write_x_bytes, file_descriptor);
 }
+
+bool get_bmp_file_body_pixel_count(uint32_t * pixel_count, BmpHeader * bmp_header){
+    *pixel_count = (bmp_header->bfSize - bmp_header->bfOffBits)/3;
+
+}

@@ -8,7 +8,7 @@
 #include "bmp_header.h"
 #include "bmp_info.h"
 
-#define PIXEL_SIZE 24
+#define PIXEL_SIZE 3
 
 /* 
     A Pixel is comprised of a single byte for:
@@ -40,8 +40,13 @@ typedef struct {
  */
 
 typedef struct {
+    uint32_t pixel_count;
+} BmpBody;
+
+typedef struct {
     BmpHeader header;
     BmpInfo   info;
+    BmpBody   body;
 } BmpFile;
 
 
@@ -127,5 +132,20 @@ bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor);
 bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd);
 
 /*---- PIXEL OPS ----*/
+
+
+/*---- BODY OPS ----*/
+
+/*
+    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor and a destination file_descriptor
+    both pointing at the beginning of the corresponding BMP Files bodies, reads pixel by pixel from the origin file_descriptor,
+    applies a transformation for each and everyone and writes the transformed pixels onto the destination file_descriptor's body
+ */
+
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd);
+
+/*---- BODY OPS ----*/
+
+
 
 #endif
