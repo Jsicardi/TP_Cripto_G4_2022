@@ -42,9 +42,10 @@ bool io_op_to_bmp_file_metadata(BmpFile * bmp_file,
 
 /*---- META DATA OPS ----*/
 
-bool read_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor){
+bool read_bmp_file_metadata(BmpFile * bmp_file, bool (*is_valid_metadata)(BmpFile*), FILE * file_descriptor){
     if(!io_op_to_bmp_file_metadata(bmp_file, &read_bmp_header, &read_bmp_info, file_descriptor)) return false;
-    
+    if(!is_valid_metadata(bmp_file)) return false;
+
     /* Sets bmp_file body structure size to be the file size - the metadata offset */
     get_bmp_file_body_pixel_count(&((bmp_file->body).pixel_count), &(bmp_file->header));
 
@@ -55,10 +56,20 @@ bool write_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor){
     return io_op_to_bmp_file_metadata(bmp_file, &write_bmp_header, &write_bmp_info, file_descriptor);
 }
 
-bool copy_bmp_file_metadata(BmpFile * bmp_file, FILE * origin_fd, FILE * destination_fd){
-    if(!read_bmp_file_metadata(bmp_file, origin_fd))       return false;
-    if(!write_bmp_file_metadata(bmp_file, destination_fd)) return false;
+bool copy_bmp_file_metadata(BmpFile * bmp_file, bool (*is_valid_metadata)(BmpFile*), FILE * origin_fd, FILE * destination_fd){
+    if(!read_bmp_file_metadata(bmp_file, is_valid_metadata, origin_fd)) return false;
+    if(!write_bmp_file_metadata(bmp_file, destination_fd))              return false;
     return true;
+}
+
+bool bmp_file_is_compressed(BmpFile * bmp_file){
+    if((bmp_file->info).biCompression == 0)
+        return false;
+    return true;
+}
+
+bool bmp_file_is_uncompressed(BmpFile * bmp_file){
+    return !bmp_file_is_compressed(bmp_file);
 }
 
 /*---- META DATA OPS ----*/
@@ -96,7 +107,7 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * ms
     if(!transformation(&pixel, msg))                  return false;
     if(!write_bmp_file_pixel(&pixel, destination_fd)) return false;
 
-    /* For security reasons we reset the Pixel values after the transfer*/
+    /* For security reasons we reset the Pixel values after the transfer */
     pixel.blue  = 0;
     pixel.green = 0;
     pixel.red   = 0;

@@ -23,12 +23,20 @@ int main(int argc, char * argv[]){
 
     BmpFile bmp_file;
 
-    copy_bmp_file_metadata(&bmp_file, origin_fd, destination_fd);
-    copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd);
+    if(!copy_bmp_file_metadata(&bmp_file, &bmp_file_is_uncompressed, origin_fd, destination_fd)) {
+        
+        if(bmp_file_is_compressed(&bmp_file)){
+            return 1; // File is compressed
+        }
+
+        return 2; // Error parsing metadata from origin_fd
+    }
+
+    if(!copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.
 
     char * msg = "";
 
-    transform_bmp_file_body(&bmp_file, &no_transformation, msg, origin_fd, destination_fd);
+    if(!transform_bmp_file_body(&bmp_file, &no_transformation, msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
 
     fclose(origin_fd);
     fclose(destination_fd);

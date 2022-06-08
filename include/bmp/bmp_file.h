@@ -60,9 +60,12 @@ typedef struct {
     It sets the file_descriptor to be pointing after the BMP File head and info.
     Parsing posible offset bits is needed as BMP File body may not be found
     inmediatly afterwards.
+
+    After reading the metadata and before getting the BMP File body properties,
+    a is_valid_metadata operation is performed before proceeding
  */
 
-bool read_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor);
+bool read_bmp_file_metadata(BmpFile * bmp_file, bool (*is_valid_metadata)(BmpFile*), FILE * file_descriptor);
 
 /*
     Given a filled out BmpFile structure and a file_descriptor pointing to the beginning of a BMP File,
@@ -85,9 +88,27 @@ bool write_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor);
     Afterwards, the file_descriptor is set to be pointing after the BMP File head and info.
     Parsing posible offset bits is needed as BMP File body may not be found
     inmediatly afterwards.
+
+    After reading the metadata and before getting the BMP File body properties,
+    a is_valid_metadata operation is performed before proceeding.
+    
+    If the is_valid_metadata predicate determines that the metadata obtained by the origin_fd is not
+    up to par, the write operation is not performed.
  */
 
-bool copy_bmp_file_metadata(BmpFile * bmp_file, FILE * origin_fd, FILE * destination_fd);
+bool copy_bmp_file_metadata(BmpFile * bmp_file, bool (*is_valid_metadata)(BmpFile*), FILE * origin_fd, FILE * destination_fd);
+
+/*
+    Returns whether the compression bits are != 0 in a bmp_file structure.
+ */
+
+bool bmp_file_is_compressed(BmpFile * bmp_file);
+
+/*
+    Returns whether the compression bits are == 0 in a bmp_file structure.
+ */
+
+bool bmp_file_is_uncompressed(BmpFile * bmp_file);
 
 /*---- META DATA OPS ----*/
 
