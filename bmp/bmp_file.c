@@ -32,4 +32,8 @@ bool read_bmp_file_metadata(BmpFile * bmp_file, FILE * file_descriptor){
     return true;
 }
 
+bool read_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor){
+    return read_x_bytes(pixel, PIXEL_SIZE, file_descriptor);
+}
+
 /***** PUBLIC FUNCTIONS *****/

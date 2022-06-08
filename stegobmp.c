@@ -18,6 +18,13 @@ int main(int argc, char * argv[]){
     FILE * file_descriptor = fopen(args->bmp_file, READ_BYTES_MODE);
     BmpFile bmp_file;
     read_bmp_file_metadata(&bmp_file, file_descriptor);
+
+    printf("%d\n", bmp_file.header.bfSize);
+
+    char pixel[3];
+    read_x_bytes(pixel, 3, file_descriptor);
+
+    printf("%d %d %d\n", pixel[0], pixel[1], pixel[2]);
     
     free(args);
 }
