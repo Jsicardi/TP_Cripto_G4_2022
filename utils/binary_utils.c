@@ -90,7 +90,7 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit){
     return true;
 }
 
-bool load_binary_message(char * msg_start, char * msg_end, BinaryMessage * msg){
+bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg){
     
     // Messages should end after their beginning
     if(msg_start > msg_end){

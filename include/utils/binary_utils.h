@@ -8,10 +8,10 @@
 #define FIST_LOW_BIT_POSITION 4
 
 typedef struct {
-    char *  message;
-    char *  curr_byte_ptr;
-    char *  last_byte_ptr;
-    uint8_t curr_bit;
+    uint8_t *  message;
+    uint8_t *  curr_byte_ptr;
+    uint8_t *  last_byte_ptr;
+    uint8_t    curr_bit;
 } BinaryMessage;
 
 /*
@@ -36,7 +36,7 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit);
     All BinaryMessages should be initialized this way.
  */
 
-bool load_binary_message(char * msg_start, char * msg_end, BinaryMessage * msg);
+bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg);
 
 /*
     Given a message stored in a BinaryMessage structure. Gets the next bit and stores
