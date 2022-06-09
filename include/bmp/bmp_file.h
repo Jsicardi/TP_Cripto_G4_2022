@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../utils/binary_utils.h"
 #include "bmp_header.h"
 #include "bmp_info.h"
 
@@ -155,7 +156,7 @@ bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor);
     it transforms the current pixel at origin_fd and writes it onto the destination_fd.
 */
 
-bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd);
+bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
 
 /*---- PIXEL OPS ----*/
 
@@ -168,7 +169,7 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * ms
     applies a transformation for each and everyone and writes the transformed pixels onto the destination file_descriptor's body
  */
 
-bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd);
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage*), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
 
 /*---- BODY OPS ----*/
 

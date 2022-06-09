@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define BITS_IN_BYTE 8
+#define FIST_LOW_BIT_POSITION 4
+
 typedef struct {
     char *  message;
     char *  curr_byte_ptr;

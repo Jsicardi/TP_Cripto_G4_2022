@@ -2,12 +2,11 @@
 
 #include <stdio.h>
 
-#define BITS_IN_BYTE            8
 #define MOST_SIGNIFICANT_BIT_ON 0x80       // 1000 0000
 #define ALL_BITS_ON             0xff       // 1111 1111
 
-#define is_bit(__bit__) __bit__ != 0 ? __bit__ != 1 ? false : true : true
-#define valid_bit_position(__position__) __position__ < BITS_IN_BYTE && __position__ > 0 ? true : false
+#define is_bit(__bit__) (__bit__ != 0 ? __bit__ != 1 ? false : true : true)
+#define valid_bit_position(__position__) ((__position__ < BITS_IN_BYTE && __position__ >= 0) ? true : false)
 
 bool get_bit_at(uint8_t byte, uint8_t position, uint8_t * bit){
 
@@ -94,7 +93,7 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit){
 bool load_binary_message(char * msg_start, char * msg_end, BinaryMessage * msg){
     
     // Messages should end after their beginning
-    if(msg_start < msg_end){
+    if(msg_start > msg_end){
         
         // Remove traces of local variables in memory
         msg_start = NULL;
@@ -143,7 +142,7 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){
         }
     }
 
-    get_bit_at(*(msg->curr_byte_ptr), msg->curr_bit, next_bit);
+    if(!get_bit_at(*(msg->curr_byte_ptr), msg->curr_bit, next_bit)) return false;
     msg->curr_bit += 1;
 
     // Remove traces of local variables in memory

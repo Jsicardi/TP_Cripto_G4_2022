@@ -125,7 +125,7 @@ bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor){
     return write_x_bytes(pixel, PIXEL_SIZE, file_descriptor);
 }
 
-bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd){
+bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
     Pixel pixel;
     if(!read_bmp_file_pixel(&pixel, origin_fd))       return false;
     if(!transformation(&pixel, msg))                  return false;
@@ -144,7 +144,7 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, char *), char * ms
 
 /*---- BODY OPS ----*/
 
-bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, char *), char * msg, FILE * origin_fd, FILE * destination_fd){
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
     for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
         if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd)) return false;
     }

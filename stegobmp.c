@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "include/utils/args.h"
 #include "include/utils/byte_utils.h"
+#include "include/stego/stego.h"
 #include "include/bmp/bmp_file.h"
 
 #define READ_BYTES_MODE "r"
@@ -10,7 +11,7 @@
 
 struct stegobmp_args * args;
 
-bool no_transformation(Pixel * pixel, char * msg){ return true; }
+bool no_transformation(Pixel * pixel, BinaryMessage * msg){ return true; }
 
 int main(int argc, char * argv[]){
     args = malloc(sizeof(struct stegobmp_args));
@@ -34,9 +35,12 @@ int main(int argc, char * argv[]){
 
     if(!copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.
 
-    char * msg = "";
+    char msg[] = "Holiss, como va todo?";
+    BinaryMessage bi_msg;
+    
+    load_binary_message(msg, msg+sizeof(msg)-1, &bi_msg);
 
-    if(!transform_bmp_file_body(&bmp_file, &no_transformation, msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
+    if(!transform_bmp_file_body(&bmp_file, &insert_lsb4_pixel, &bi_msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
 
     // Reset bmp_file variable for security measures
     clean_bmp_file_structure(&bmp_file);
