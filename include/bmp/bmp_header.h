@@ -35,6 +35,6 @@ bool write_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor);
     Sets pixel_count to be the file size - the metadata offset over 3 resulting in the total number of pixels 
  */
 
-bool get_bmp_file_body_pixel_count(uint32_t * pixel_count, BmpHeader * bmp_header);
+void get_bmp_file_body_pixel_count(uint32_t * pixel_count, BmpHeader * bmp_header);
 
 #endif
