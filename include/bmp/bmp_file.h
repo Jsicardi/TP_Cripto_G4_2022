@@ -1,7 +1,6 @@
 #ifndef __BMP_FILE_H_
 #define __BMP_FILE_H_
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -170,6 +169,13 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), 
  */
 
 bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage*), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+
+/*
+    Given a BmpFile structure where metadata was parsed, an origin file_descriptor and a destination file_descriptor
+    both pointing at the beginning of the corresponding BMP Files bodies, applies the LSBI stego algorithm and writes the transformed pixels onto the destination file_descriptor's body
+ */
+
+bool transform_bmp_file_body_lsbi(BmpFile *bmp_file, BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
 
 /*---- BODY OPS ----*/
 

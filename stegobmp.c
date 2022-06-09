@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "include/utils/args.h"
-#include "include/utils/byte_utils.h"
 #include "include/stego/stego.h"
 #include "include/bmp/bmp_file.h"
 
@@ -40,7 +39,14 @@ int main(int argc, char * argv[]){
     
     load_binary_message(msg, msg+sizeof(msg)-1, &bi_msg);
 
-    if(!transform_bmp_file_body(&bmp_file, &insert_lsb4_pixel, &bi_msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
+    if(args->action == EMBEED){
+        if(args->steg == LSB4){
+            if(!transform_bmp_file_body(&bmp_file, &insert_lsb4_pixel, &bi_msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
+        }
+        else if(args->steg == LSBI){
+            transform_bmp_file_body_lsbi(&bmp_file,&bi_msg,origin_fd,destination_fd);
+        }
+    }
 
     // Reset bmp_file variable for security measures
     clean_bmp_file_structure(&bmp_file);
@@ -54,4 +60,5 @@ int main(int argc, char * argv[]){
     
 
     free(args);
+
 }

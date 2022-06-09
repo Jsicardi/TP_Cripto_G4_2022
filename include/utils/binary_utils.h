@@ -47,4 +47,8 @@ bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage *
 
 bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg);
 
+uint8_t bit_identity(uint8_t bit);
+
+uint8_t bit_inversion(uint8_t bit);
+
 #endif

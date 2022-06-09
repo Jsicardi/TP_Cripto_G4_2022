@@ -151,3 +151,11 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){
 
     return true;
 }
+
+uint8_t bit_identity(uint8_t bit){
+    return bit;
+}
+
+uint8_t bit_inversion(uint8_t bit){
+    return 1-bit;
+}

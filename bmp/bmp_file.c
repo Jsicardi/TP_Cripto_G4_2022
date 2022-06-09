@@ -1,5 +1,6 @@
 #include "../include/bmp/bmp_file.h"
 #include "../include/utils/byte_utils.h"
+#include "../include/stego/stego.h"
 
 /***** PRIVATE FUNCTIONS *****/
 
@@ -141,7 +142,6 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), 
 
 /*---- PIXEL OPS ----*/
 
-
 /*---- BODY OPS ----*/
 
 bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
@@ -149,6 +149,12 @@ bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*,
         if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd)) return false;
     }
     return true;
+}
+
+bool transform_bmp_file_body_lsbi(BmpFile *bmp_file, BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
+   uint8_t (*pattern_functions[4]) (uint8_t bit);
+   get_inversion_functions(bmp_file->body,msg,origin_fd,pattern_functions);
+   return true;
 }
 
 /*---- BODY OPS ----*/

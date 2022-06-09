@@ -69,7 +69,7 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
                 }
                 break;
             case 0:
-                args->action = EMBED;
+                args->action = EMBEED;
                 break;
             case 1:
                 args->action = EXTRACT;
@@ -110,7 +110,7 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
         printf("Action parameter required\n");
         exit(1);
     }
-    if(args->action == EMBED && (args->in_file == 0 || args->bmp_file == 0 || args->out_file == 0 || args->steg == NONE)){
+    if(args->action == EMBEED && (args->in_file == 0 || args->bmp_file == 0 || args->out_file == 0 || args->steg == NONE)){
         printf("--in,--out,-p and --steg parameters are required for action embed\n");
         exit(1);
     }
