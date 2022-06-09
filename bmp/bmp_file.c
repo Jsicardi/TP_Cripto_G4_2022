@@ -38,6 +38,10 @@ bool io_op_to_bmp_file_metadata(BmpFile * bmp_file,
 
 /***** PUBLIC FUNCTIONS *****/
 
+void clean_bmp_file_structure(){
+    
+}
+
 
 
 /*---- META DATA OPS ----*/

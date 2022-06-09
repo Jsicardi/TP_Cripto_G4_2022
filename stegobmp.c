@@ -38,8 +38,16 @@ int main(int argc, char * argv[]){
 
     if(!transform_bmp_file_body(&bmp_file, &no_transformation, msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
 
+    // Reset bmp_file variable for security measures
+    
+
     fclose(origin_fd);
     fclose(destination_fd);
+
+    // Reset file_descriptors' variables for security measures
+    origin_fd      = NULL;
+    destination_fd = NULL;
     
+
     free(args);
 }
