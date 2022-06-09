@@ -49,7 +49,12 @@ typedef struct {
     BmpBody   body;
 } BmpFile;
 
+/*
+    Sets all BmpFile fields to 0 to prevent leaking information into memory
+    and becoming a potential security vulnerability.
+ */
 
+void clean_bmp_file_structure(BmpFile * bmp_file);
 
 /*---- META DATA OPS ----*/
 

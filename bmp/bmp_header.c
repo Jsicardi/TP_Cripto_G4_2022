@@ -10,6 +10,14 @@ bool io_op_to_bmp_header(BmpHeader *bmp_header, bool (*io_op)(void*, size_t, FIL
     return true;
 }
 
+void clean_bmp_header(BmpHeader *bmp_header){
+    bmp_header->bfType      = 0;
+    bmp_header->bfSize      = 0;
+    bmp_header->bfReserved1 = 0;
+    bmp_header->bfReserved2 = 0;
+    bmp_header->bfOffBits   = 0;
+}
+
 bool read_bmp_header(BmpHeader *bmp_header, FILE* file_descriptor){
     return io_op_to_bmp_header(bmp_header, &read_x_bytes, file_descriptor);
 }

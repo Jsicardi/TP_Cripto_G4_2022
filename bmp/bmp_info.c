@@ -16,6 +16,20 @@ bool io_op_to_bmp_info(BmpInfo *bmp_info, bool (*io_op)(void*, size_t, FILE*), F
     return true;
 }
 
+void clean_bmp_info(BmpInfo *bmp_info){
+    bmp_info->biSize          = 0;
+    bmp_info->biWidth         = 0;
+    bmp_info->biHeight        = 0;
+    bmp_info->biPlanes        = 0;
+    bmp_info->biBitCount      = 0;
+    bmp_info->biCompression   = 0;
+    bmp_info->biSizeImage     = 0;
+    bmp_info->biXPelsPerMeter = 0;
+    bmp_info->biYPelsPerMeter = 0;
+    bmp_info->biClrUsed       = 0;
+    bmp_info->biClrImportant  = 0;
+}
+
 bool read_bmp_info(BmpInfo *bmp_info, FILE* file_descriptor){
     return io_op_to_bmp_info(bmp_info, &read_x_bytes, file_descriptor);
 }

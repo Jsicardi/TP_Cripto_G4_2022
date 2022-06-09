@@ -16,6 +16,13 @@ typedef struct {
 } BmpHeader;
 
 /*
+    Sets all BmpHeader fields to 0 to prevent leaking information into memory
+    and becoming a potential security vulnerability.
+ */
+
+void clean_bmp_header(BmpHeader *bmp_header);
+
+/*
     Reads the first 14 bytes which correspond to the header of a
     BMP file V3 (https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapfileheader?redirectedfrom=MSDN)
     onto a BmpHeader structure.

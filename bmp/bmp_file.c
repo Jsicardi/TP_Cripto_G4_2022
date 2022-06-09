@@ -29,6 +29,22 @@ bool io_op_to_bmp_file_metadata(BmpFile * bmp_file,
 /*---- META DATA OPS ----*/
 
 
+/*---- BODY OPS ----*/
+
+/*
+    Sets all BmpBody fields to 0 to prevent leaking information into memory
+    and becoming a potential security vulnerability.
+ */
+
+void clean_bmp_file_body(BmpFile * bmp_file);
+
+void clean_bmp_file_body(BmpFile * bmp_file){
+    (bmp_file->body).pixel_count = 0;
+}
+
+/*---- BODY OPS ----*/
+
+
 
 /***** PRIVATE FUNCTIONS *****/
 
@@ -38,8 +54,12 @@ bool io_op_to_bmp_file_metadata(BmpFile * bmp_file,
 
 /***** PUBLIC FUNCTIONS *****/
 
-void clean_bmp_file_structure(){
-    
+
+
+void clean_bmp_file_structure(BmpFile * bmp_file){
+    clean_bmp_header(&(bmp_file->header));
+    clean_bmp_info(&(bmp_file->info));
+    clean_bmp_file_body(bmp_file);
 }
 
 

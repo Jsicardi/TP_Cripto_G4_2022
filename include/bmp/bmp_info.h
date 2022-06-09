@@ -22,6 +22,13 @@ typedef struct {
 } BmpInfo;
 
 /*
+    Sets all BmpInfo fields to 0 to prevent leaking information into memory
+    and becoming a potential security vulnerability.
+ */
+
+void clean_bmp_info(BmpInfo *bmp_info);
+
+/*
     Reads the 40 bytes following the BmpHeader. These bytes describe how the pixel
     information is stored in file. Some usefull bits include the 32 bit compression field.
 
