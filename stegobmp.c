@@ -2,11 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "include/utils/args.h"
+#include "include/utils/file_utils.h"
 #include "include/stego/stego.h"
 #include "include/bmp/bmp_file.h"
-
-#define READ_BYTES_MODE "r"
-#define WRITE_BYTES_MODE "w"
 
 struct stegobmp_args * args;
 
@@ -34,10 +32,11 @@ int main(int argc, char * argv[]){
 
     if(!copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.
 
-    char msg[] = "Holiss, como va todo?";
     BinaryMessage bi_msg;
     
-    load_binary_message(msg, msg+sizeof(msg)-1, &bi_msg);
+    printf("%s\n", args->in_file);
+
+    if(!load_file(&bi_msg, args->in_file)) return 5;
 
     if(args->action == EMBEED){
         if(args->steg == LSB4){
@@ -47,6 +46,8 @@ int main(int argc, char * argv[]){
             transform_bmp_file_body_lsbi(&bmp_file,&bi_msg,origin_fd,destination_fd);
         }
     }
+
+    if(!close_file(&bi_msg)) return 6;
 
     // Reset bmp_file variable for security measures
     clean_bmp_file_structure(&bmp_file);
@@ -60,5 +61,5 @@ int main(int argc, char * argv[]){
     
 
     free(args);
-
+    return 0;
 }

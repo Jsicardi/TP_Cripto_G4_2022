@@ -1,6 +1,7 @@
 #include "../include/utils/binary_utils.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MOST_SIGNIFICANT_BIT_ON 0x80       // 1000 0000
 #define ALL_BITS_ON             0xff       // 1111 1111
@@ -112,6 +113,26 @@ bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage *
     msg_start = NULL;
     msg_end   = NULL;
     msg       = NULL;
+
+    return true;
+}
+
+bool unload_binary_message(BinaryMessage * msg, bool free_msg){
+
+    if(msg == NULL) return false;
+
+    msg->curr_byte_ptr = msg->message;
+    while(msg->curr_byte_ptr <= msg->last_byte_ptr){
+        *(msg->curr_byte_ptr) = 0;
+        (msg->curr_byte_ptr)++;
+    }
+
+    if(free_msg) free(msg->message);
+
+    msg->message       = 0;
+    msg->curr_byte_ptr = 0;
+    msg->last_byte_ptr = 0;
+    msg->curr_bit      = 0;
 }
 
 bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){

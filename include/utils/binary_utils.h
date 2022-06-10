@@ -39,6 +39,12 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit);
 bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg);
 
 /*
+    Sets msg bytes and curr_bit to 0 and curr_ptr and last_ptr point to NULL.
+ */
+
+bool unload_binary_message(BinaryMessage * msg, bool free_msg);
+
+/*
     Given a message stored in a BinaryMessage structure. Gets the next bit and stores
     it onto the next_bit variable.
 
