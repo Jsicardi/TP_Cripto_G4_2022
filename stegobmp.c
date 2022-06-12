@@ -12,7 +12,6 @@ bool no_transformation(Pixel * pixel, BinaryMessage * msg){ return true; }
 
 int main(int argc, char * argv[]){
     args = malloc(sizeof(struct stegobmp_args));
-    printf("Hello\n");
     parse_args(argc,argv,args);
     printf("Action: %d In-file: %s BMP-file: %s out-file:%s Stego:%d Enc:%d Mode:%d Pass:%s\n", args->action,args->in_file,args->bmp_file,args->out_file,args->steg,args->enc,args->mode,args->password);
     
@@ -40,10 +39,13 @@ int main(int argc, char * argv[]){
 
     if(args->action == EMBEED){
         if(args->steg == LSB4){
-            if(!transform_bmp_file_body(&bmp_file, &insert_lsb4_pixel, &bi_msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
+            if(!transform_bmp_file_body(&bmp_file, &insert_lsb_pixel, &bi_msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB4)) return 4; // Error copying body pixels
+        }
+        else if(args->steg == LSB1){
+            if(!transform_bmp_file_body(&bmp_file, &insert_lsb_pixel, &bi_msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB1)) return 4; // Error copying body pixels
         }
         else if(args->steg == LSBI){
-            transform_bmp_file_body_lsbi(&bmp_file,&bi_msg,origin_fd,destination_fd);
+            transform_bmp_file_body_lsbi(&bmp_file,&insert_lsb_pixel,&bi_msg,origin_fd,destination_fd);
         }
     }
 

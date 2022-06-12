@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "../utils/binary_utils.h"
 #include "bmp_header.h"
@@ -151,11 +153,12 @@ bool read_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor);
 bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor);
 
 /*
-    Given an origin file descriptor, a destination file descriptor, a transformation function and an optional msg,
+    Given an origin file descriptor, a destination file descriptor, a transformation function an optional msg and a position
+    of the first low bit (LSB4 starts from the 4th low bit, LSB1 starts from the 7th low bit),
     it transforms the current pixel at origin_fd and writes it onto the destination_fd.
 */
 
-bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position);
 
 /*---- PIXEL OPS ----*/
 
@@ -163,19 +166,19 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), 
 /*---- BODY OPS ----*/
 
 /*
-    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor and a destination file_descriptor
-    both pointing at the beginning of the corresponding BMP Files bodies, reads pixel by pixel from the origin file_descriptor,
+    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies, and a position
+    of the first low bit (LSB4 starts from the 4th low bit, LSB1 starts from the 7th low bit), reads pixel by pixel from the origin file_descriptor,
     applies a transformation for each and everyone and writes the transformed pixels onto the destination file_descriptor's body
  */
 
-bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage*), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position);
 
 /*
-    Given a BmpFile structure where metadata was parsed, an origin file_descriptor and a destination file_descriptor
-    both pointing at the beginning of the corresponding BMP Files bodies, applies the LSBI stego algorithm and writes the transformed pixels onto the destination file_descriptor's body
+    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies,
+    first calculates the modified bytes for each lsbi patterns, then applies inversion if needed on the bits of the message and finally performs just like the function below
  */
 
-bool transform_bmp_file_body_lsbi(BmpFile *bmp_file, BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+bool transform_bmp_file_body_lsbi(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
 
 /*---- BODY OPS ----*/
 

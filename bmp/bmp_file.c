@@ -126,10 +126,10 @@ bool write_bmp_file_pixel(Pixel * pixel, FILE * file_descriptor){
     return write_x_bytes(pixel, PIXEL_SIZE, file_descriptor);
 }
 
-bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
+bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position){
     Pixel pixel;
     if(!read_bmp_file_pixel(&pixel, origin_fd))       return false;
-    if(!transformation(&pixel, msg))                  return false;
+    if(!transformation(&pixel, msg,first_low_bit_position))                  return false;
     if(!write_bmp_file_pixel(&pixel, destination_fd)) return false;
 
     /* For security reasons we reset the Pixel values after the transfer */
@@ -144,17 +144,32 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *), 
 
 /*---- BODY OPS ----*/
 
-bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position){
     for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
-        if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd)) return false;
+        if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd,first_low_bit_position)) return false;
     }
     return true;
 }
 
-bool transform_bmp_file_body_lsbi(BmpFile *bmp_file, BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
-   uint8_t (*pattern_functions[4]) (uint8_t bit);
-   get_inversion_functions(bmp_file->body,msg,origin_fd,pattern_functions);
-   return true;
+bool transform_bmp_file_body_lsbi(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
+
+    uint8_t (*pattern_functions[4]) (uint8_t bit);
+    uint8_t inversions[4];
+    get_inversion_functions(bmp_file->body,msg,origin_fd,pattern_functions,inversions);
+    
+    invert_lsbi_message_bits(bmp_file->body,msg,origin_fd,pattern_functions);
+    uint8_t * msg_with_inv = malloc(4 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1));
+    memcpy(msg_with_inv, inversions, sizeof(inversions));
+    memcpy(msg_with_inv + sizeof(inversions),msg->curr_byte_ptr,(msg->last_byte_ptr - msg->curr_byte_ptr + 1));
+
+    free(msg->message);
+    load_binary_message(msg_with_inv,msg_with_inv + (4 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1)),msg);
+
+    for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
+        if(!transform_bmp_file_pixel(transformation,msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB1)) return false;
+    }
+
+    return true;
 }
 
 /*---- BODY OPS ----*/
