@@ -154,16 +154,22 @@ bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*,
 bool transform_bmp_file_body_lsbi(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
 
     uint8_t (*pattern_functions[4]) (uint8_t bit);
-    uint8_t inversions[4];
-    get_inversion_functions(bmp_file->body,msg,origin_fd,pattern_functions,inversions);
-    
+    uint8_t inversion_byte = 0;
+    get_inversion_functions(bmp_file->body,msg,origin_fd,pattern_functions,&inversion_byte);
     invert_lsbi_message_bits(bmp_file->body,msg,origin_fd,pattern_functions);
-    uint8_t * msg_with_inv = malloc(4 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1));
-    memcpy(msg_with_inv, inversions, sizeof(inversions));
-    memcpy(msg_with_inv + sizeof(inversions),msg->curr_byte_ptr,(msg->last_byte_ptr - msg->curr_byte_ptr + 1));
+
+    uint8_t * msg_with_inv = malloc(1 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1));
+    memcpy(msg_with_inv,&inversion_byte, sizeof(inversion_byte));
+    memcpy(msg_with_inv + sizeof(inversion_byte),msg->curr_byte_ptr,(msg->last_byte_ptr - msg->curr_byte_ptr + 1));
 
     free(msg->message);
-    load_binary_message(msg_with_inv,msg_with_inv + (4 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1)),msg);
+    load_binary_message(msg_with_inv,msg_with_inv + (1 + (msg->last_byte_ptr - msg->curr_byte_ptr + 1)),msg);
+    
+    //skip 4 superior bits of inversion byte
+    uint8_t discard_bit_ptr;
+    for(uint32_t i =0; i < 4; i++){
+        read_next_bit(&discard_bit_ptr,msg);
+    }
 
     for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
         if(!transform_bmp_file_pixel(transformation,msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB1)) return false;

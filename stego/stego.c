@@ -34,8 +34,11 @@ void get_lsbi_pattern(uint8_t byte, uint8_t *pattern){
 
 }
 
-void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,uint8_t (*pattern_functions[]) (uint8_t bit), uint8_t inversions[]){
+void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,uint8_t (*pattern_functions[]) (uint8_t bit), uint8_t * inversion_byte){
     int current_pos = ftell(origin_fd);
+    
+    //skip the 4 bytes used for inversion bits
+    fseek(origin_fd,4,SEEK_CUR);
 
     BinaryMessage aux_msg;
     
@@ -68,13 +71,15 @@ void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,u
         printf("Pattern: %d, Modified bits: %d Conserved bits: %d\n",j,modified_pixels_matrix[j][0],modified_pixels_matrix[j][1]);
         if(modified_pixels_matrix[j][0] > modified_pixels_matrix[j][1]){
             pattern_functions[j] = &bit_inversion;
-            inversions[j] = 1;
+            set_bit_at(inversion_byte,4+j,1);
         }
         else{
             pattern_functions[j] = &bit_identity;
-            inversions[j] = 0;
+            set_bit_at(inversion_byte,4+j,0);
         }
     }
+
+    //rewind file to original position before inversion analysis
     rewind(origin_fd);
     fseek(origin_fd,current_pos,SEEK_CUR);
 
@@ -82,6 +87,9 @@ void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,u
 
 bool invert_lsbi_message_bits(BmpBody body,BinaryMessage *msg, FILE * origin_fd,uint8_t (*pattern_functions[]) (uint8_t bit)){
     int current_pos = ftell(origin_fd);
+
+    //skip the 4 bytes used for inversion bits
+    fseek(origin_fd,4,SEEK_CUR);
 
     BinaryMessage aux_msg;
     
@@ -105,6 +113,8 @@ bool invert_lsbi_message_bits(BmpBody body,BinaryMessage *msg, FILE * origin_fd,
             msg_index++;
         } 
     }
+
+    //rewind file to original position before current analysis
     rewind(origin_fd);
     fseek(origin_fd,current_pos,SEEK_CUR);
     return true;
