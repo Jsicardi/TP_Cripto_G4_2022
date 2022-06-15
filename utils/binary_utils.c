@@ -119,7 +119,9 @@ bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage *
 
 bool unload_binary_message(BinaryMessage * msg, bool free_msg){
 
-    if(msg == NULL) return false;
+    if(msg == NULL){
+        return false;
+    };
 
     msg->curr_byte_ptr = msg->message;
     while(msg->curr_byte_ptr <= msg->last_byte_ptr){
@@ -127,12 +129,15 @@ bool unload_binary_message(BinaryMessage * msg, bool free_msg){
         (msg->curr_byte_ptr)++;
     }
 
+
     if(free_msg) free(msg->message);
 
     msg->message       = 0;
     msg->curr_byte_ptr = 0;
     msg->last_byte_ptr = 0;
     msg->curr_bit      = 0;
+    
+    return true;
 }
 
 bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){

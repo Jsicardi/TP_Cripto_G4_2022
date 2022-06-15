@@ -5,6 +5,7 @@
 #include "include/utils/file_utils.h"
 #include "include/stego/stego.h"
 #include "include/bmp/bmp_file.h"
+#include "include/utils/encryption_utils.h"
 
 struct stegobmp_args * args;
 
@@ -61,6 +62,22 @@ int main(int argc, char * argv[]){
     origin_fd      = NULL;
     destination_fd = NULL;
     
+    //ENCRYPT AND DECRYPT TEST. REMOVE LATER
+    uint8_t * test_message = "Buenas que onda";
+    uint8_t * encryption = malloc(MAX_ENCR_LENGTH);
+    uint8_t * decryption = malloc(MAX_ENCR_LENGTH);
+    uint32_t encrypted_bytes;
+    uint32_t decrypted_bytes;
+    encrypt_message(test_message,args,encryption,&encrypted_bytes);
+    encryption = (uint8_t *) realloc(encryption, encrypted_bytes+1);
+    encryption[encrypted_bytes] = 0;
+    printf("Encrypted message: %s\n",encryption);
+    decrypt_message(encryption,args,decryption,&decrypted_bytes);
+    decryption = (uint8_t *) realloc(decryption, decrypted_bytes+1);
+    decryption[decrypted_bytes] = 0;
+    printf("Decrypted message: %s\n", decryption);
+    free(encryption);
+    free(decryption);
 
     free(args);
     return 0;
