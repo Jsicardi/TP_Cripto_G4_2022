@@ -91,6 +91,50 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit){
     return true;
 }
 
+bool swap_low_and_high_bits_in_byte(uint8_t * byte){
+
+    /*
+        A byte's structure is like the following:
+
+        *byte = high | low;
+
+        Let's say byte has the value 1011 0101 which is 181 in decimal base.
+
+        high | low
+        1011 | 0101
+
+        high  = 1011 0000
+        low   = 0000 0101
+
+        *byte = high | low = 1011 0101
+    */
+    
+    uint8_t high = *byte & 0xf0; // AND with 1111 0000 to get the four (4) most significant bits
+    uint8_t low  = *byte & 0x0f; // AND with 0000 1111 to get the four (4) less significant bits
+
+    /*
+        Now we shift right (>>) four (4) bits the most significant bits (high) making them the least significant bits (low).
+        high = 1011 0000 >> 0000 1011
+
+        And we shift left (<<) four (4) bits the least significant bits (low) making them the most significant bits (high).
+        low  = 0000 0101 >> 0101 0000
+
+        Now high and low have swapped bit placement
+        high  = 0000 1011
+        low   = 0101 0000
+
+        ORing both we have byte with its high and low reversed
+        *byte = high | low = 0101 1011
+    */
+
+    high = high >> 4;
+    low  = low  << 4;
+    
+    *byte = low | high;
+
+    return true;
+}
+
 bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg){
     
     // Messages should end after their beginning

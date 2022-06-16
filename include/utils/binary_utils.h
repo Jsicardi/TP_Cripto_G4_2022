@@ -30,6 +30,17 @@ bool get_bit_at(uint8_t byte, uint8_t position, uint8_t * bit);
 bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit);
 
 /*
+    Given a byte, swaps its 4 most significant bits with its 4 least significant ones.
+
+    If byte is:                         1011 0101
+    
+    After returning true,
+    byte will be:                       0101 1011
+*/
+
+bool swap_low_and_high_bits_in_byte(uint8_t * byte);
+
+/*
     Sets the msg BinaryMessage structure with the values matching the message starting
     at msg_start and ending at msg_end, so as to be able to perform operations with
     the structure.

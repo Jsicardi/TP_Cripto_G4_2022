@@ -12,14 +12,21 @@ struct stegobmp_args * args;
 bool no_transformation(Pixel * pixel, BinaryMessage * msg){ return true; }
 
 int main(int argc, char * argv[]){
+
+    /*** Load program arguments into stegobmp_args structure ***/
     args = malloc(sizeof(struct stegobmp_args));
     parse_args(argc,argv,args);
     printf("Action: %d In-file: %s BMP-file: %s out-file:%s Stego:%d Enc:%d Mode:%d Pass:%s\n", args->action,args->in_file,args->bmp_file,args->out_file,args->steg,args->enc,args->mode,args->password);
-    
+    /***********************************************************/
+
+    /*** Create filedescriptors for input and output files ***/
     FILE * origin_fd      = fopen(args->bmp_file, READ_BYTES_MODE);
     FILE * destination_fd = fopen(args->out_file, WRITE_BYTES_MODE);
+    /*********************************************************/
 
     BmpFile bmp_file;
+
+    /*** Copy metadata and offset from input bmp file to output bmp file ***/
 
     if(!copy_bmp_file_metadata(&bmp_file, &bmp_file_is_uncompressed, origin_fd, destination_fd)) {
         
@@ -32,12 +39,17 @@ int main(int argc, char * argv[]){
 
     if(!copy_bmp_file_offset(&bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.
 
+    /***********************************************************************/
+
+    /*** Load secret message onto BinaryMessage structure ***/
     BinaryMessage bi_msg;
     
     printf("%s\n", args->in_file);
 
     if(!load_file(&bi_msg, args->in_file)) return 5;
+    /********************************************************/
 
+    /*** Transform input bmp file body to hide BinaryMessage and output it onto the output file ***/
     if(args->action == EMBEED){
         if(args->steg == LSB4){
             if(!transform_bmp_file_body(&bmp_file, &insert_lsb_pixel, &bi_msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB4)) return 4; // Error copying body pixels
@@ -49,8 +61,10 @@ int main(int argc, char * argv[]){
             transform_bmp_file_body_lsbi(&bmp_file,&insert_lsb_pixel,&bi_msg,origin_fd,destination_fd);
         }
     }
+    /**********************************************************************************************/
 
     if(!close_file(&bi_msg)) return 6;
+    
 
     // Reset bmp_file variable for security measures
     clean_bmp_file_structure(&bmp_file);
