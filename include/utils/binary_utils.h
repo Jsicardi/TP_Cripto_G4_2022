@@ -51,6 +51,13 @@ bool swap_low_and_high_bits_in_byte(uint8_t * byte);
 bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg);
 
 /*
+    Given a BinaryMessage, sets another BinaryMessage with the same state.
+    One can be used for reading and one for writing for example.
+ */
+
+bool copy_binary_message(BinaryMessage * from, BinaryMessage * to);
+
+/*
     Sets msg bytes and curr_bit to 0 and curr_ptr and last_ptr point to NULL.
  */
 
@@ -64,6 +71,21 @@ bool unload_binary_message(BinaryMessage * msg, bool free_msg);
  */
 
 bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg);
+
+/* 
+    Given a size and a BinaryMessage structure. Makes it so the BinaryMessage structure can
+    be used as write buffer of length size bytes.
+
+    After doing the necessary operations. clean_writeable_binary_message must be called.
+ */
+
+bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg);
+
+/*
+    Given a BinaryMessage set for writing, cleans the structure and frees memory.
+ */
+
+bool clean_writeable_binary_message(BinaryMessage * msg);
 
 uint8_t bit_identity(uint8_t bit);
 

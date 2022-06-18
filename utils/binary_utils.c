@@ -135,6 +135,41 @@ bool swap_low_and_high_bits_in_byte(uint8_t * byte){
     return true;
 }
 
+bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg){
+
+    uint8_t * msg_start = malloc(size_in_bytes);
+
+    msg->message       = msg_start;
+    msg->curr_byte_ptr = msg_start;
+    msg->last_byte_ptr = msg_start + size_in_bytes - 1;
+    msg->curr_bit      = 0;
+
+    return true;
+}
+
+bool clean_writeable_binary_message(BinaryMessage * msg){
+    
+    free(msg->message);
+
+    // Set back to defaults
+    msg->message       = NULL;
+    msg->curr_byte_ptr = NULL;
+    msg->last_byte_ptr = NULL;
+    msg->curr_bit      = 0;
+
+    return true;
+}
+
+bool copy_binary_message(BinaryMessage * from, BinaryMessage * to) {
+
+    to->message        = from->message;
+    to->curr_byte_ptr  = from->curr_byte_ptr;
+    to->last_byte_ptr  = from->last_byte_ptr;
+    to->curr_bit       = from->curr_bit;
+
+    return true;
+}
+
 bool load_binary_message(uint8_t * msg_start, uint8_t * msg_end, BinaryMessage * msg){
     
     // Messages should end after their beginning
@@ -217,6 +252,44 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){
 
     // Remove traces of local variables in memory
     next_bit = NULL;
+    msg      = NULL;
+
+    return true;
+}
+
+bool write_next_bit(uint8_t next_bit, BinaryMessage * msg){
+
+    // Current byte should be before or the last byte
+    if(msg->curr_byte_ptr > msg->last_byte_ptr){
+        return false;
+    }
+
+    /* 
+        If we are pointing after the 8th bit (position 7) we must advance 
+        to the next byte.
+     */
+
+    if(msg->curr_bit >= BITS_IN_BYTE){
+        
+        // Sets byte pointer to be the next byte
+        (msg->curr_byte_ptr)++;
+        msg->curr_bit = 0;
+        
+        /* 
+            If the pointer now points outside the message there is nothing 
+            more to read.
+         */
+
+        if(msg->curr_byte_ptr > msg->last_byte_ptr){
+            return false;
+        }
+    }
+
+    if(!set_bit_at(msg->curr_byte_ptr, msg->curr_bit, next_bit)) return false;
+    msg->curr_bit += 1;
+
+    // Remove traces of local variables in memory
+    next_bit = 0;
     msg      = NULL;
 
     return true;
