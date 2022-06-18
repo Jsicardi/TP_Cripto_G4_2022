@@ -175,6 +175,20 @@ bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*,
 
 /*
     Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies,
+    performs LSB1 encription hidding the message in the least significant bit for every byte.
+ */
+
+bool transform_bmp_file_body_lsb1(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+
+/*
+    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies,
+    performs LSB4 encription hidding the message in the four (4) least significant bits for every byte.
+ */
+
+bool transform_bmp_file_body_lsb4(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd);
+
+/*
+    Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies,
     first calculates the modified bytes for each lsbi patterns, then applies inversion if needed on the bits of the message and finally performs just like the function below
  */
 

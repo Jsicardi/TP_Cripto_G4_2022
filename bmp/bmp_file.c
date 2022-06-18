@@ -151,6 +151,14 @@ bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*,
     return true;
 }
 
+bool transform_bmp_file_body_lsb1(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd) {
+    return transform_bmp_file_body(bmp_file, &insert_lsb_pixel, msg, origin_fd, destination_fd, FIST_LOW_BIT_POSITION_LSB1);
+}
+
+bool transform_bmp_file_body_lsb4(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
+    return transform_bmp_file_body(bmp_file, &insert_lsb_pixel, msg, origin_fd, destination_fd,FIST_LOW_BIT_POSITION_LSB4);
+}
+
 bool transform_bmp_file_body_lsbi(BmpFile *bmp_file,bool (*transformation) (Pixel*, BinaryMessage *,int),BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd){
 
     uint8_t (*pattern_functions[4]) (uint8_t bit);
