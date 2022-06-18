@@ -147,19 +147,6 @@ bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg){
     return true;
 }
 
-bool clean_writeable_binary_message(BinaryMessage * msg){
-    
-    free(msg->message);
-
-    // Set back to defaults
-    msg->message       = NULL;
-    msg->curr_byte_ptr = NULL;
-    msg->last_byte_ptr = NULL;
-    msg->curr_bit      = 0;
-
-    return true;
-}
-
 bool copy_binary_message(BinaryMessage * from, BinaryMessage * to) {
 
     to->message        = from->message;
@@ -211,9 +198,9 @@ bool unload_binary_message(BinaryMessage * msg, bool free_msg){
 
     if(free_msg) free(msg->message);
 
-    msg->message       = 0;
-    msg->curr_byte_ptr = 0;
-    msg->last_byte_ptr = 0;
+    msg->message       = NULL;
+    msg->curr_byte_ptr = NULL;
+    msg->last_byte_ptr = NULL;
     msg->curr_bit      = 0;
     
     return true;
