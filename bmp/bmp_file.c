@@ -144,6 +144,10 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *,in
 
 /*---- BODY OPS ----*/
 
+void get_bmp_file_body_size(uint32_t * pixel_count, BmpFile * bmp_file){
+    get_bmp_file_body_pixel_count(pixel_count, &(bmp_file->header));
+}
+
 bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position){
     for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
         if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd,first_low_bit_position)) return false;

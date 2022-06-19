@@ -2,6 +2,44 @@
 
 void get_lsbi_pattern(uint8_t byte, uint8_t *pattern);
 
+bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg){
+
+    size_t message_size_in_bytes, available_hiding_place;
+    uint32_t bmp_body_size_in_pixels;
+
+    if(!get_binary_message_size(&message_size_in_bytes, msg)) return false;
+    get_bmp_file_body_size(&bmp_body_size_in_pixels, bmp);
+
+    switch (lsb_type) {
+        case LSB1:
+            /*
+                Multiply body size in pixels by 3 to get body size in bytes. Afterward divide by 8 as we need 8 bytes to
+                store 1 byte of message (a bytes hides 1 bit).
+             */
+
+            available_hiding_place = bmp_body_size_in_pixels*3 / 8;
+
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) return false;
+            return true;
+    
+        case LSB4:
+            /*
+                Multiply body size in pixels by 3 to get body size in bytes. Afterward divide by 2 as we need 2 bytes to
+                store 1 byte of message (a bytes hides 4 bits).
+             */
+            
+            available_hiding_place = bmp_body_size_in_pixels*3 / 2;
+
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) return false;
+            return true;
+
+        /*
+            TODO: Add LSBI check.
+         */
+    }
+    return false;
+}
+
 bool insert_lsb_pixel(Pixel * pixel, BinaryMessage *msg, int first_low_bit_position){
 
     uint8_t next_bit;
@@ -11,6 +49,24 @@ bool insert_lsb_pixel(Pixel * pixel, BinaryMessage *msg, int first_low_bit_posit
 
         for(int bit_pos = first_low_bit_position; bit_pos < BITS_IN_BYTE; bit_pos++){
             if(read_next_bit(&next_bit, msg)){
+                set_bit_at(bytes[i], bit_pos, next_bit);
+            }
+        }
+
+    }
+
+    return true;
+}
+
+bool get_lsb_pixel(Pixel * pixel, BinaryMessage *writeable_msg, int first_low_bit_position){
+
+    uint8_t next_bit;
+    uint8_t* bytes[] = { &(pixel->blue), &(pixel->green), &(pixel->red) };
+
+    for(int i = 0; i < PIXEL_SIZE; i++){
+
+        for(int bit_pos = first_low_bit_position; bit_pos < BITS_IN_BYTE; bit_pos++){
+            if(read_next_bit(&next_bit, writeable_msg)){
                 set_bit_at(bytes[i], bit_pos, next_bit);
             }
         }

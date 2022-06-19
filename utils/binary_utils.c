@@ -135,6 +135,16 @@ bool swap_low_and_high_bits_in_byte(uint8_t * byte){
     return true;
 }
 
+bool uint32_to_array_of_uint8(uint8_t * number_bytes, uint32_t number){
+
+    for(int i = 0; i < 4; i++){
+        number_bytes[3-i] = number & 0xff;
+        number >>= 8;
+    }
+    
+    return true;
+}
+
 bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg){
 
     uint8_t * msg_start = malloc(size_in_bytes);
@@ -203,6 +213,12 @@ bool unload_binary_message(BinaryMessage * msg, bool free_msg){
     msg->last_byte_ptr = NULL;
     msg->curr_bit      = 0;
     
+    return true;
+}
+
+bool get_binary_message_size(size_t * message_size_in_bytes, BinaryMessage * msg){
+    if(msg->message == NULL || msg->last_byte_ptr == NULL) return false;
+    *message_size_in_bytes = msg->last_byte_ptr - msg->message + 1;
     return true;
 }
 

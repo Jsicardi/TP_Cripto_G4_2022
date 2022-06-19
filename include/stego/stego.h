@@ -1,9 +1,17 @@
 #ifndef __STEGO_H_
 #define __STEGO_H_
 
+#include "../utils/args.h"
 #include "../bmp/bmp_file.h"
 #include "../utils/binary_utils.h"
 #include"../utils/byte_utils.h"
+
+/*
+    Given a BmpFile, a lsb_type for hiding and a BinaryMessage. Returns whether it is posible to hide the
+    desired message in the given BmpFile.
+ */
+
+bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg);
 
 bool insert_lsb_pixel(Pixel * pixel, BinaryMessage *msg, int first_low_bit_position);
 

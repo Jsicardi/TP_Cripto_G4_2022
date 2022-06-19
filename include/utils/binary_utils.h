@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define BITS_IN_BYTE 8
 #define FIST_LOW_BIT_POSITION_LSB1 7
@@ -41,6 +42,15 @@ bool set_bit_at(uint8_t * byte, uint8_t position, uint8_t bit);
 bool swap_low_and_high_bits_in_byte(uint8_t * byte);
 
 /*
+    Given an uint32 integer stores in number_bytes an array of 4 bytes containing the number
+    in Big Endian.
+
+    number_bytes must be a uint8_t array of at list 4 elements.
+ */
+
+bool uint32_to_array_of_uint8(uint8_t * number_bytes, uint32_t number);
+
+/*
     Sets the msg BinaryMessage structure with the values matching the message starting
     at msg_start and ending at msg_end, so as to be able to perform operations with
     the structure.
@@ -64,6 +74,14 @@ bool copy_binary_message(BinaryMessage * from, BinaryMessage * to);
 bool unload_binary_message(BinaryMessage * msg, bool free_msg);
 
 /*
+    Given a BinaryMessage, sets the message_size_in_bytes variable to be equal to the size in bytes of the message.
+
+    1 byte == 8 bits
+ */
+
+bool get_binary_message_size(size_t * message_size_in_bytes, BinaryMessage * msg);
+
+/*
     Given a message stored in a BinaryMessage structure. Gets the next bit and stores
     it onto the next_bit variable.
 
@@ -80,6 +98,14 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg);
  */
 
 bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg);
+
+/*
+    Given a message stored in a BinaryMessage structure and a bit. Sets the next bit.
+
+    BinaryMessage structure should be initialized with writeable_binary_message first.
+ */
+
+bool write_next_bit(uint8_t next_bit, BinaryMessage * msg);
 
 uint8_t bit_identity(uint8_t bit);
 

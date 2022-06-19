@@ -6,10 +6,36 @@
 #include "include/stego/stego.h"
 #include "include/bmp/bmp_file.h"
 #include "include/utils/encryption_utils.h"
+#include "include/utils/packing_utils.h"
 
 struct stegobmp_args * args;
 
 int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
+
+    /*** Check file is uncompressed ***/
+    long savepoint = ftell(origin_fd);
+
+    if(!read_bmp_file_metadata(bmp_file, &bmp_file_is_uncompressed, origin_fd)) {
+
+        if(bmp_file_is_compressed(bmp_file)){
+            return 1; // File is compressed
+        }
+
+        return 2; // Error parsing metadata from origin_fd
+    }
+
+    if(fseek(origin_fd, savepoint, SEEK_SET) != 0) return 2;
+    /***********************************/
+
+    /*** Load secret message onto BinaryMessage structure ***/
+    BinaryMessage bi_msg;
+    
+    printf("%s\n", args->in_file);
+
+    if(!pack_message_from_file(args, &bi_msg, origin_fd)) return 8;
+    /********************************************************/
+
+    if(!message_can_be_stego(bmp_file, args->steg, &bi_msg)) return 7;
 
     FILE * destination_fd = fopen(args->out_file, WRITE_BYTES_MODE);
 
@@ -24,17 +50,9 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
         return 2; // Error parsing metadata from origin_fd
     }
 
-    if(!copy_bmp_file_offset(bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.
+    if(!copy_bmp_file_offset(bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.*/
 
     /***********************************************************************/
-
-    /*** Load secret message onto BinaryMessage structure ***/
-    BinaryMessage bi_msg;
-    
-    printf("%s\n", args->in_file);
-
-    if(!load_file(&bi_msg, args->in_file)) return 5;
-    /********************************************************/
 
     /*** Transform input bmp file body to hide BinaryMessage and output it onto the output file ***/
 
@@ -51,7 +69,7 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
 
     /**********************************************************************************************/
 
-    if(!close_file(&bi_msg)) return 6;
+    if(!unload_binary_message(&bi_msg, true)) return 9;
 
     fclose(destination_fd);
 
@@ -95,19 +113,27 @@ int main(int argc, char * argv[]){
     origin_fd = NULL;
     
     //ENCRYPT AND DECRYPT TEST. REMOVE LATER
-    uint8_t * test_message = "Buenas que onda";
-    uint8_t * encryption = malloc(MAX_ENCR_LENGTH);
+    uint32_t message_size = sizeof("Buenas que onda");
+    uint8_t * test_message = malloc(message_size);
+    uint8_t message_size_arr[4];
+    uint32_to_array_of_uint8(message_size_arr, message_size);
+    memcpy(test_message, "Buenas que onda", message_size);
+    prepend_x_bytes(&test_message, message_size, 4, message_size_arr);
+    uint8_t * encryption;
     uint8_t * decryption = malloc(MAX_ENCR_LENGTH);
     uint32_t encrypted_bytes;
     uint32_t decrypted_bytes;
-    encrypt_message(test_message,args,encryption,&encrypted_bytes);
+    encrypt_message(test_message, message_size + 4, args, &encryption, &encrypted_bytes);
     encryption = (uint8_t *) realloc(encryption, encrypted_bytes+1);
     encryption[encrypted_bytes] = 0;
-    printf("Encrypted message: %s\n",encryption);
-    decrypt_message(encryption,args,decryption,&decrypted_bytes);
+    printf("Encrypted message: %s %d\n",encryption, encrypted_bytes);
+    
+    //
+    decrypt_message(encryption, encrypted_bytes, args,decryption,&decrypted_bytes);
     decryption = (uint8_t *) realloc(decryption, decrypted_bytes+1);
     decryption[decrypted_bytes] = 0;
-    printf("Decrypted message: %s\n", decryption);
+    printf("Decrypted message: %d %d %d %d %s\n", *decryption, decryption[1], decryption[2], decryption[3], decryption + 4);
+    free(test_message);
     free(encryption);
     free(decryption);
 

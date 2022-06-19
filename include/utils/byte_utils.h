@@ -24,6 +24,14 @@ bool read_x_bytes(void* buffer, size_t bytes_to_read, FILE* file_descriptor);
 bool write_x_bytes(void* buffer, size_t bytes_to_write, FILE* file_descriptor);
 
 /*
+    Given a buffer and a buffer to write, prepends the bytes of buffer to write to the buffer.
+
+    buffer must be in heap memory.
+*/
+
+bool prepend_x_bytes(uint8_t ** buffer, size_t buffer_size, size_t bytes_to_write, void *buffer_to_write);
+
+/*
     Reads bytes_to_copy from an origin file descriptor (a binary file) and writes
     each and every byte to a destination_fd
 

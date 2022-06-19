@@ -1,5 +1,8 @@
 #include "../include/utils/byte_utils.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #define LONE_BLOCK 1
 
 bool io_op_to_x_bytes(  void* buffer, 
@@ -26,6 +29,17 @@ bool write_x_bytes(void* buffer, size_t bytes_to_write, FILE* file_descriptor){
     */
 
     return io_op_to_x_bytes(buffer, bytes_to_write, (size_t (*)(void *, size_t, size_t, FILE *)) &fwrite, file_descriptor);
+}
+
+bool prepend_x_bytes(uint8_t ** buffer, size_t buffer_size, size_t bytes_to_write, void *buffer_to_write){
+    
+    *buffer = realloc(*buffer, buffer_size + bytes_to_write);
+    if(*buffer == NULL) return false;
+    
+    memmove(*buffer + bytes_to_write, *buffer, buffer_size);
+    memcpy(*buffer, buffer_to_write, bytes_to_write);
+
+    return true;
 }
 
 bool copy_x_bytes(size_t bytes_to_copy, FILE* origin_fd, FILE* destination_fd){

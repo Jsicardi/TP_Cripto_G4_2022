@@ -166,6 +166,12 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *,in
 /*---- BODY OPS ----*/
 
 /*
+    Given a BmpFile structure, returns the body's pixel count
+ */
+
+void get_bmp_file_body_size(uint32_t * pixel_count, BmpFile * bmp_file);
+
+/*
     Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies, and a position
     of the first low bit (LSB4 starts from the 4th low bit, LSB1 starts from the 7th low bit), reads pixel by pixel from the origin file_descriptor,
     applies a transformation for each and everyone and writes the transformed pixels onto the destination file_descriptor's body
