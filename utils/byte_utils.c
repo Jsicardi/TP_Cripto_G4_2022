@@ -42,6 +42,17 @@ bool prepend_x_bytes(uint8_t ** buffer, size_t buffer_size, size_t bytes_to_writ
     return true;
 }
 
+bool dump_x_bytes(size_t bytes_to_dump, FILE* origin_fd){
+    size_t read_character;
+    while(bytes_to_dump > 0){
+        read_character = fgetc(origin_fd);
+        if(read_character == EOF)
+            return false;
+        bytes_to_dump--;
+    }
+    return true;
+}
+
 bool copy_x_bytes(size_t bytes_to_copy, FILE* origin_fd, FILE* destination_fd){
     size_t read_character;
     while(bytes_to_copy > 0){

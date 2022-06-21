@@ -6,6 +6,6 @@
 #include "binary_utils.h"
 #include "args.h"
 
-bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg, FILE * fd);
+bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg);
 
 #endif

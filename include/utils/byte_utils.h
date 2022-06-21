@@ -32,6 +32,12 @@ bool write_x_bytes(void* buffer, size_t bytes_to_write, FILE* file_descriptor);
 bool prepend_x_bytes(uint8_t ** buffer, size_t buffer_size, size_t bytes_to_write, void *buffer_to_write);
 
 /*
+    Ignores bytes_to_dump bytes from a file descriptor.
+ */
+
+bool dump_x_bytes(size_t bytes_to_dump, FILE* origin_fd);
+
+/*
     Reads bytes_to_copy from an origin file descriptor (a binary file) and writes
     each and every byte to a destination_fd
 

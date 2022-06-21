@@ -10,10 +10,7 @@
 
 struct stegobmp_args * args;
 
-int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
-
-    /*** Check file is uncompressed ***/
-    long savepoint = ftell(origin_fd);
+int check_if_compressed(BmpFile * bmp_file, FILE * origin_fd){
 
     if(!read_bmp_file_metadata(bmp_file, &bmp_file_is_uncompressed, origin_fd)) {
 
@@ -24,6 +21,17 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
         return 2; // Error parsing metadata from origin_fd
     }
 
+    return 0;
+}
+
+int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
+
+    /*** Check file is uncompressed ***/
+    long savepoint = ftell(origin_fd);
+
+    int ret_val;
+    if((ret_val = check_if_compressed(bmp_file, origin_fd)) != 0) return ret_val;
+
     if(fseek(origin_fd, savepoint, SEEK_SET) != 0) return 2;
     /***********************************/
 
@@ -32,7 +40,7 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
     
     printf("%s\n", args->in_file);
 
-    if(!pack_message_from_file(args, &bi_msg, origin_fd)) return 8;
+    if(!pack_message_from_file(args, &bi_msg)) return 8;
     /********************************************************/
 
     if(!message_can_be_stego(bmp_file, args->steg, &bi_msg)) return 7;
@@ -80,6 +88,44 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
 }
 
 int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
+
+    //Check if compressed
+    int ret_val;
+    if((ret_val = check_if_compressed(bmp_file, origin_fd)) != 0) return ret_val;
+
+    if(!ignore_bmp_file_offset(bmp_file, origin_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.*/
+
+    BinaryMessage bi_msg;
+
+    /*** Snatches input bmp file body hidden message into BinaryMessage ***/
+
+    bool (*snatchers[])(uint8_t *, void *, BinaryMessage *) = {
+        NULL,
+        lsb1_snatcher,
+        lsb4_snatcher
+    };
+
+    LsbSnatcherCtx ctx;
+
+    new_lsb_snatcher_ctx(&ctx);
+
+    if(args->steg == LSB1 || args->steg == LSB4 || args->steg == LSBI){
+        if(!retrive_bmp_file_body(bmp_file, snatchers[args->steg], (void *) &ctx, &bi_msg, origin_fd)) return 4; // Error retrieving body pixels
+    }
+
+    /**********************************************************************************************/
+
+    uint8_t * message = malloc(5000);
+    uint32_t decrypted_bytes;
+
+    decrypt_message(bi_msg.message, ctx.enc_bytes, args, message, &decrypted_bytes);
+
+    printf("\ndec %d\n%d %d %d %d \n%s\n", decrypted_bytes, message[0], message[1], message[2], message[3], message + 4);
+
+    free(message);
+
+    if(!unload_binary_message(&bi_msg, true)) return 10;
+
     return 0;
 }
 
@@ -111,31 +157,6 @@ int main(int argc, char * argv[]){
 
     // Reset file_descriptor variable for security measures
     origin_fd = NULL;
-    
-    //ENCRYPT AND DECRYPT TEST. REMOVE LATER
-    uint32_t message_size = sizeof("Buenas que onda");
-    uint8_t * test_message = malloc(message_size);
-    uint8_t message_size_arr[4];
-    uint32_to_array_of_uint8(message_size_arr, message_size);
-    memcpy(test_message, "Buenas que onda", message_size);
-    prepend_x_bytes(&test_message, message_size, 4, message_size_arr);
-    uint8_t * encryption;
-    uint8_t * decryption = malloc(MAX_ENCR_LENGTH);
-    uint32_t encrypted_bytes;
-    uint32_t decrypted_bytes;
-    encrypt_message(test_message, message_size + 4, args, &encryption, &encrypted_bytes);
-    encryption = (uint8_t *) realloc(encryption, encrypted_bytes+1);
-    encryption[encrypted_bytes] = 0;
-    printf("Encrypted message: %s %d\n",encryption, encrypted_bytes);
-    
-    //
-    decrypt_message(encryption, encrypted_bytes, args,decryption,&decrypted_bytes);
-    decryption = (uint8_t *) realloc(decryption, decrypted_bytes+1);
-    decryption[decrypted_bytes] = 0;
-    printf("Decrypted message: %d %d %d %d %s\n", *decryption, decryption[1], decryption[2], decryption[3], decryption + 4);
-    free(test_message);
-    free(encryption);
-    free(decryption);
 
     free(args);
     return 0;

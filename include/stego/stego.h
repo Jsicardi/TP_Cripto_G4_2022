@@ -19,4 +19,37 @@ void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,u
 
 bool invert_lsbi_message_bits(BmpBody body,BinaryMessage *msg, FILE * origin_fd,uint8_t (*pattern_functions[]) (uint8_t bit));
 
+typedef enum { INIT_SNATCH, SIZE_SNATCH, MESSAGE_SNATCH, FINISHED_SNATCH } lsb_snatcher_state_t;
+
+typedef struct {
+    lsb_snatcher_state_t state;
+                uint32_t enc_bytes;
+           BinaryMessage w_msg;
+} LsbSnatcherCtx;
+
+/*
+    Initializes a LsbSnatcherCtx. Must be called upon before using any snatcher functions.
+    A LsbSnatcherCtx is requiered for all snatcher functions.
+ */
+
+bool new_lsb_snatcher_ctx(LsbSnatcherCtx * snatcher_ctx);
+
+/*
+    Given a byte pointer, a LsbSnatcherCtx and a BinaryMessage, loads the cypher onto the BinaryMessage
+    and sets the LsbSnatcherCtx acordingly.
+
+    lsb1_snatcher retrives only last bit of every byte.
+ */
+
+bool lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+
+/*
+    Given a byte pointer, a LsbSnatcherCtx and a BinaryMessage, loads the cypher onto the BinaryMessage
+    and sets the LsbSnatcherCtx acordingly.
+
+    lsb4_snatcher retrives last four (4) bits of every byte.
+ */
+
+bool lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+
 #endif

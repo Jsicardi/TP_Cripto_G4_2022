@@ -70,8 +70,11 @@ bool get_file_extension(char * file_name, char ** extension, size_t * extension_
 
 bool cpy_msg_to_hide(uint8_t * msg_to_hide, uint32_t file_size, FILE * file_content, char * extension, size_t extension_size){
 
+    uint8_t size_arr[4];
+    uint32_to_array_of_uint8(size_arr, file_size);
+
     // First copy file size
-    memcpy(msg_to_hide, &file_size, sizeof(file_size));    
+    memcpy(msg_to_hide, size_arr, 4);   
 
     // Then copy file content starting off after the file size
     if(!read_x_bytes(msg_to_hide + sizeof(file_size), file_size, file_content)) return false;

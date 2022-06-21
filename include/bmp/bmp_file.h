@@ -125,6 +125,16 @@ bool bmp_file_is_uncompressed(BmpFile * bmp_file);
 
 /*
     Given an origin and a destination file_descriptors pointing to the end of the BMP file metadata
+    (after the Header and Info), it ignores the offset bytes in between metadata and body.
+
+    This operation should only be executed once per file after parsing the bmp_file_metadata.
+ */
+
+
+bool ignore_bmp_file_offset(BmpFile * bmp_file, FILE * origin_fd);
+
+/*
+    Given an origin and a destination file_descriptors pointing to the end of the BMP file metadata
     (after the Header and Info), it copies the offset bytes in between metadata and body.
 
     This operation should only be executed once per file after parsing the bmp_file_metadata.
@@ -170,6 +180,13 @@ bool transform_bmp_file_pixel(bool (*transformation) (Pixel*, BinaryMessage *,in
  */
 
 void get_bmp_file_body_size(uint32_t * pixel_count, BmpFile * bmp_file);
+
+/*
+    Given a BmpFile structure where metadata was parsed, a snatcher function, a writeable BinaryMessage and an origin file descriptor.
+    Read the full BmpFile body, calling the snatcher function for every byte in every pixel.
+ */
+
+bool retrive_bmp_file_body(BmpFile * bmp_file, bool (*snatcher) (uint8_t *, void *, BinaryMessage *), void * snatcher_ctx, BinaryMessage * msg, FILE * origin_fd);
 
 /*
     Given a BmpFile structure where metadata was parsed, a transformation, an origin file_descriptor, a destination file_descriptor, both pointing at the beginning of the corresponding BMP Files bodies, and a position

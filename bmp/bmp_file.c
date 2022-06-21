@@ -103,6 +103,15 @@ bool bmp_file_is_uncompressed(BmpFile * bmp_file){
 
 /*---- OFFSET OPS ----*/
 
+bool ignore_bmp_file_offset(BmpFile * bmp_file, FILE * origin_fd){
+    size_t offset_bytes = (bmp_file->header).bfOffBits - BMP_HEADER_SIZE - BMP_INFO_SIZE;
+    if(offset_bytes < 0)
+        return false;
+    else if(offset_bytes > 0)
+        if(!dump_x_bytes(offset_bytes, origin_fd)) return false;
+    return true;
+}
+
 bool copy_bmp_file_offset(BmpFile * bmp_file, FILE * origin_fd, FILE * destination_fd){
     size_t offset_bytes = (bmp_file->header).bfOffBits - BMP_HEADER_SIZE - BMP_INFO_SIZE;
     if(offset_bytes < 0)
@@ -148,7 +157,21 @@ void get_bmp_file_body_size(uint32_t * pixel_count, BmpFile * bmp_file){
     get_bmp_file_body_pixel_count(pixel_count, &(bmp_file->header));
 }
 
-bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd,int first_low_bit_position){
+bool retrive_bmp_file_body(BmpFile * bmp_file, bool (*snatcher) (uint8_t *, void *, BinaryMessage *), void * snatcher_ctx, BinaryMessage * msg, FILE * origin_fd){
+    
+    Pixel pixel;
+
+    for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){    
+        if(!read_bmp_file_pixel(&pixel, origin_fd))               return false;
+        if(!snatcher(&(pixel.blue),  snatcher_ctx, msg))          return false;
+        if(!snatcher(&(pixel.green), snatcher_ctx, msg))          return false;
+        if(!snatcher(&(pixel.red),   snatcher_ctx, msg))          return false;
+    }
+    
+    return true;
+}
+
+bool transform_bmp_file_body(BmpFile * bmp_file, bool (*transformation) (Pixel*, BinaryMessage *,int), BinaryMessage * msg, FILE * origin_fd, FILE * destination_fd, int first_low_bit_position){
     for(uint32_t i = 0; i < (bmp_file->body).pixel_count; i++){
         if(!transform_bmp_file_pixel(transformation, msg, origin_fd, destination_fd,first_low_bit_position)) return false;
     }
