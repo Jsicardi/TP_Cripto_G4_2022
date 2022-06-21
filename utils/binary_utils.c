@@ -229,6 +229,9 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){
         return false;
     }
 
+    if(!get_bit_at(*(msg->curr_byte_ptr), msg->curr_bit, next_bit)) return false;
+    msg->curr_bit += 1;
+
     /* 
         If we are pointing after the 8th bit (position 7) we must advance 
         to the next byte.
@@ -239,19 +242,7 @@ bool read_next_bit(uint8_t * next_bit, BinaryMessage * msg){
         // Sets byte pointer to be the next byte
         (msg->curr_byte_ptr)++;
         msg->curr_bit = 0;
-        
-        /* 
-            If the pointer now points outside the message there is nothing 
-            more to read.
-         */
-
-        if(msg->curr_byte_ptr > msg->last_byte_ptr){
-            return false;
-        }
     }
-
-    if(!get_bit_at(*(msg->curr_byte_ptr), msg->curr_bit, next_bit)) return false;
-    msg->curr_bit += 1;
 
     // Remove traces of local variables in memory
     next_bit = NULL;
@@ -267,6 +258,9 @@ bool write_next_bit(uint8_t next_bit, BinaryMessage * msg){
         return false;
     }
 
+    if(!set_bit_at(msg->curr_byte_ptr, msg->curr_bit, next_bit)) return false;
+    msg->curr_bit += 1;
+
     /* 
         If we are pointing after the 8th bit (position 7) we must advance 
         to the next byte.
@@ -277,23 +271,81 @@ bool write_next_bit(uint8_t next_bit, BinaryMessage * msg){
         // Sets byte pointer to be the next byte
         (msg->curr_byte_ptr)++;
         msg->curr_bit = 0;
-        
-        /* 
-            If the pointer now points outside the message there is nothing 
-            more to read.
-         */
-
-        if(msg->curr_byte_ptr > msg->last_byte_ptr){
-            return false;
-        }
     }
-
-    if(!set_bit_at(msg->curr_byte_ptr, msg->curr_bit, next_bit)) return false;
-    msg->curr_bit += 1;
 
     // Remove traces of local variables in memory
     next_bit = 0;
     msg      = NULL;
+
+    return true;
+}
+
+bool read_next_byte(uint8_t * next_byte, BinaryMessage * msg){
+    
+    // Set next_byte initially as 0.
+    *next_byte = 0;
+    
+    uint8_t bit;
+
+    /*
+        Recovers byte by getting bit by bit ORing the last bit
+        with the retrived bit and shifting left leaving a 0 for the
+        next bit.
+     */
+
+    for(uint8_t i = 0; i < BITS_IN_BYTE; i++){
+        if(!read_next_bit(&bit, msg)) return false;
+
+        *next_byte <<= 1;
+        *next_byte = *next_byte | bit;
+    }
+
+    // Reset local pointers for security reasons
+    next_byte = NULL;
+    msg       = NULL;
+
+    return true;
+}
+
+bool read_next_i32(uint32_t * next_i32, BinaryMessage * msg){
+
+    // Set next_i32 initially as 0.
+    *next_i32 = 0;
+
+    uint8_t byte;
+
+    /*
+        Recovers four (4) bytes (i32) by getting byte by byte ORing the last 8 bits
+        with the retrived byte and shifting left a byte leaving eight (8) bits in 0 for the
+        next bit.
+     */
+
+    for(uint8_t i = 0; i < sizeof(uint32_t); i++){
+        if(!read_next_byte(&byte, msg)) return false;
+
+        *next_i32 <<= 8;
+        *next_i32 = *next_i32 | byte;
+    }
+
+    // Reset local pointers for security reasons
+    next_i32  = NULL;
+    msg       = NULL;
+
+    return true;
+}
+
+bool skip_ahead_of_message(size_t bytes, BinaryMessage * msg){
+
+    if(msg->curr_byte_ptr + bytes > msg->last_byte_ptr){
+        return false;
+    }
+    
+    msg->curr_bit = 0;
+    msg->curr_byte_ptr += bytes;
+
+    // Reset local variables for security reasons
+    bytes = 0;
+    msg   = NULL;
 
     return true;
 }

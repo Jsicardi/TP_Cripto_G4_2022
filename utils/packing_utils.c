@@ -7,7 +7,7 @@
 
 bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg){
     
-    if(!load_file(msg, args->in_file)) return false;
+    if(!load_from_file(msg, args->in_file)) return false;
 
     size_t message_size;
 
@@ -22,7 +22,7 @@ bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg){
 
     if(!prepend_x_bytes(&encrypted_message, encrypted_bytes, 4, encrypted_bytes_arr))               return false;
 
-    if(!close_file(msg))                                                                            return false;
+    if(!close_loaded_file(msg))                                                                            return false;
 
     if(!load_binary_message(encrypted_message, encrypted_message + encrypted_bytes + 4 - 1, msg))   return false;
 

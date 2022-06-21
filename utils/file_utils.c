@@ -14,14 +14,14 @@
     corresponding to the file opened at the file_descriptor.
  */
 
-bool get_file_size(uint32_t * file_size, FILE * file_descriptor);
+bool get_file_size_from_file(uint32_t * file_size, FILE * file_descriptor);
 
 /*
     Given a file_name, sets extension to be the last bytes before trailing \0
     following the last dot character.
  */
 
-bool get_file_extension(char * file_name, char ** extension, size_t * extension_size);
+bool get_file_extension_from_filename(char * file_name, char ** extension, size_t * extension_size);
 
 /*
     Given a file size, a file descriptor pointing to the start of the file contents, the extension and the extension size,
@@ -34,7 +34,7 @@ bool get_file_extension(char * file_name, char ** extension, size_t * extension_
 
 bool cpy_msg_to_hide(uint8_t * msg_to_hide, uint32_t file_size, FILE * file_content, char * extension, size_t extension_size);
 
-bool get_file_size(uint32_t * file_size, FILE * file_descriptor){
+bool get_file_size_from_file(uint32_t * file_size, FILE * file_descriptor){
 
     // Goes to the end of the file
     if(fseek(file_descriptor, 0L, SEEK_END)) return false;
@@ -52,7 +52,7 @@ bool get_file_size(uint32_t * file_size, FILE * file_descriptor){
     return true;
 }
 
-bool get_file_extension(char * file_name, char ** extension, size_t * extension_size){
+bool get_file_extension_from_filename(char * file_name, char ** extension, size_t * extension_size){
 
     // Get last occurrence of the dot character. File extension should be found inmediatly after.
     char * dot_position = strrchr(file_name, DOT_CHAR);
@@ -92,17 +92,17 @@ bool cpy_msg_to_hide(uint8_t * msg_to_hide, uint32_t file_size, FILE * file_cont
 
 /***** PUBLIC FUNCTIONS *****/
 
-bool load_file(BinaryMessage * msg, char * file_name){
+bool load_from_file(BinaryMessage * msg, char * file_name){
 
     FILE * file_descriptor = fopen(file_name, READ_BYTES_MODE);
     if(file_descriptor == NULL) return false;
 
     uint32_t file_size;
-    if(!get_file_size(&file_size, file_descriptor)) return false;
+    if(!get_file_size_from_file(&file_size, file_descriptor)) return false;
 
     char * extension;
     size_t extension_size;
-    if(!get_file_extension(file_name, &extension, &extension_size)) return false;
+    if(!get_file_extension_from_filename(file_name, &extension, &extension_size)) return false;
     
     uint8_t * msg_to_hide = malloc(sizeof(file_size) + file_size + extension_size);
     if(msg_to_hide == NULL) {
@@ -128,8 +128,47 @@ bool load_file(BinaryMessage * msg, char * file_name){
     return true;
 }
 
-bool close_file(BinaryMessage * msg){
+bool close_loaded_file(BinaryMessage * msg){
     return unload_binary_message(msg, true);
+}
+
+bool load_to_file(BinaryMessage * msg, char * file_name){
+
+    uint32_t file_size;
+    if(!read_next_i32(&file_size, msg))             return false;
+
+    BinaryMessage file_content;
+
+    if(!copy_binary_message(msg, &file_content))    return false;
+
+    if(!skip_ahead_of_message(file_size, msg))      return false;
+    
+    size_t extension_size = strlen(msg->curr_byte_ptr), file_name_size = strlen(file_name);
+
+    char * full_file_name = malloc(file_name_size + extension_size + 1);
+    if(full_file_name == NULL) return false;
+
+    strncpy(full_file_name, file_name, file_name_size);
+    strncpy(full_file_name + file_name_size, msg->curr_byte_ptr, extension_size);
+    full_file_name[file_name_size + extension_size] = 0;
+    
+    FILE * file_descriptor = fopen(full_file_name, WRITE_BYTES_MODE);
+    if(file_descriptor == NULL) {
+        free(full_file_name);
+        return false;
+    }
+
+    if(!write_x_bytes(file_content.curr_byte_ptr, file_size, file_descriptor)){
+        free(full_file_name);
+        fclose(file_descriptor);
+        return false;
+    }
+
+    free(full_file_name);
+    
+    if(fclose(file_descriptor) == EOF) return false;
+
+    return true;
 }
 
 /***** PUBLIC FUNCTIONS *****/

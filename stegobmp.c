@@ -120,9 +120,14 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
 
     decrypt_message(bi_msg.message, ctx.enc_bytes, args, message, &decrypted_bytes);
 
-    printf("\ndec %d\n%d %d %d %d \n%s\n", decrypted_bytes, message[0], message[1], message[2], message[3], message + 4);
+    if(!unload_binary_message(&bi_msg, true)) return 10;
 
-    free(message);
+    if(!load_binary_message(message, message + decrypted_bytes - 1, &bi_msg)) return 10;
+
+    if(!load_to_file(&bi_msg, args->out_file)){
+        unload_binary_message(&bi_msg, true);
+        return 11;
+    }
 
     if(!unload_binary_message(&bi_msg, true)) return 10;
 

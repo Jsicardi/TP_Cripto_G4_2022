@@ -17,12 +17,14 @@
     when BinaryMessage is no longer used.
  */
 
-bool load_file(BinaryMessage * msg, char * file_name);
+bool load_from_file(BinaryMessage * msg, char * file_name);
 
 /*
     Cleans BinaryMessage structure and frees the message.
 */
 
-bool close_file(BinaryMessage * msg);
+bool close_loaded_file(BinaryMessage * msg);
+
+bool load_to_file(BinaryMessage * msg, char * file_name);
 
 #endif

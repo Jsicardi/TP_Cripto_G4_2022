@@ -246,7 +246,7 @@ bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first
 
                     if(!snatched_bit_into_binary_message(byte, i, &(snatcher_ctx->w_msg))) return false;
 
-                    if(snatcher_ctx->w_msg.curr_byte_ptr == snatcher_ctx->w_msg.last_byte_ptr && snatcher_ctx->w_msg.curr_bit == BITS_IN_BYTE){
+                    if(snatcher_ctx->w_msg.curr_byte_ptr > snatcher_ctx->w_msg.last_byte_ptr){
 
                         /* 
                             Loads bits stored in binary message into the variable enc_bytes.
@@ -289,7 +289,7 @@ bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first
 
                     if(!snatched_bit_into_binary_message(byte, i, &(snatcher_ctx->w_msg))) return false;
 
-                    if(snatcher_ctx->w_msg.curr_byte_ptr == snatcher_ctx->w_msg.last_byte_ptr && snatcher_ctx->w_msg.curr_bit == BITS_IN_BYTE){
+                    if(snatcher_ctx->w_msg.curr_byte_ptr > snatcher_ctx->w_msg.last_byte_ptr){
                         snatcher_ctx->state = FINISHED_SNATCH;
                     }
                 }

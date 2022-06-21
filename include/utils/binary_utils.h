@@ -107,6 +107,35 @@ bool writeable_binary_message(size_t size_in_bytes, BinaryMessage * msg);
 
 bool write_next_bit(uint8_t next_bit, BinaryMessage * msg);
 
+/*
+    Given a message stored in a BinaryMessage structure. Gets the next byte and stores
+    it onto the next_byte variable.
+
+    BinaryMessage structure should be initialized with load_binary_message first.
+ */
+
+bool read_next_byte(uint8_t * next_byte, BinaryMessage * msg);
+
+/*
+    Given a message stored in a BinaryMessage structure. Gets the next four (4) bytes and stores
+    it onto the next_i32 variable.
+
+    BinaryMessage structure should be initialized with load_binary_message first.
+ */
+
+bool read_next_i32(uint32_t * next_i32, BinaryMessage * msg);
+
+/*
+    Given a message stored in a BinaryMessage structure and an offset of bytes, attempts
+    to skip ahead that amount of bytes in the BinaryMessage.
+
+    Could be use in combination with copy_binary_message to go forwards and backwards.
+
+    BinaryMessage structure should be initialized with load_binary_message first.
+ */
+
+bool skip_ahead_of_message(size_t bytes, BinaryMessage * msg);
+
 uint8_t bit_identity(uint8_t bit);
 
 uint8_t bit_inversion(uint8_t bit);
