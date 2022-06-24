@@ -102,7 +102,8 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     bool (*snatchers[])(uint8_t *, void *, BinaryMessage *) = {
         NULL,
         lsb1_snatcher,
-        lsb4_snatcher
+        lsb4_snatcher,
+        lsbi_snatcher
     };
 
     LsbSnatcherCtx ctx;
@@ -115,10 +116,10 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
 
     /**********************************************************************************************/
 
-    uint8_t * message = malloc(5000);
-    uint32_t decrypted_bytes;
+    uint8_t * message = malloc(MAX_ENCR_LENGTH);
+    uint32_t decrypted_bytes = 0;
 
-    decrypt_message(bi_msg.message, ctx.enc_bytes, args, message, &decrypted_bytes);
+    decrypt_message(bi_msg.message, (size_t) ctx.enc_bytes, args, message, &decrypted_bytes);
 
     if(!unload_binary_message(&bi_msg, true)) return 10;
 

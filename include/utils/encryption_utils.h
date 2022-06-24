@@ -10,7 +10,7 @@
 #define AES_192_BLOCK_SIZE 24
 #define AES_256_BLOCK_SIZE 32
 
-#define MAX_ENCR_LENGTH 5000
+#define MAX_ENCR_LENGTH 60*1024*1024
 
 /*Given a message, an stegobmp_args structure an encryption buffer and an encrypted_bytes pointer, encrypts the message
 with the given parameters and stores it in encryption, and the encrypted bytes in the encrypted_bytes pointer*/
