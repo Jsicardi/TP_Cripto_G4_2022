@@ -33,9 +33,15 @@ bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg){
             if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) return false;
             return true;
 
-        /*
-            TODO: Add LSBI check.
-         */
+        case LSBI:
+            /*
+                Multiply body size in pixels by 3 to get body size in bytes. Afterward divide by 8 as we need 8 bytes to
+                store 1 byte of message (a bytes hides 1 bit). On if, add 4 aditional bytes in comp (needed to store the
+                4 bits for pattern inversion)
+             */
+            available_hiding_place = bmp_body_size_in_pixels*3 / 8;
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || (message_size_in_bytes + 4) > available_hiding_place) return false;
+            return true;
     }
     return false;
 }
