@@ -195,7 +195,7 @@ bool snatched_bit_into_binary_message(uint8_t * byte, uint8_t bit_position, Bina
     and so.
 */
 
-bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position);
+bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position);
 
 bool new_lsb_snatcher_ctx(LsbSnatcherCtx * snatcher_ctx){
     
@@ -222,7 +222,7 @@ bool snatched_bit_into_binary_message(uint8_t * byte, uint8_t bit_position, Bina
     return true;
 }
 
-bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position){
+bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position){
     
     LsbSnatcherCtx * snatcher_ctx = (LsbSnatcherCtx *) ctx;
 
@@ -301,12 +301,36 @@ bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first
     return false;
 }
 
-bool lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
-    return lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1);
+bool enc_lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1);
 }
 
-bool lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
-    return lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB4);
+bool enc_lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB4);
+}
+
+bool no_enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position) {
+    LsbSnatcherCtx * snatcher_ctx   = (LsbSnatcherCtx *) ctx;
+
+    if(snatcher_ctx->state == EXTENSION_SNATCH){
+        for(uint8_t i = first_low_bit_position; i < BITS_IN_BYTE; i++){
+            if(!snatched_bit_into_binary_message(byte, i, &(snatcher_ctx->w_msg))) return false;
+
+            if(snatcher_ctx->w_msg.curr_byte_ptr > snatcher_ctx->w_msg.last_byte_ptr){
+                snatcher_ctx->state = FINISHED_SNATCH;
+            }
+        }
+    } else {
+        lsb_snatcher_state_t prev_state = snatcher_ctx->state;
+
+        bool ret_val = enc_lsb_snatcher(byte, ctx, msg, first_low_bit_position);
+
+        // Captures state after finishing reading message and sets it so it reads the extension
+        if(prev_state == MESSAGE_SNATCH && snatcher_ctx->state == FINISHED_SNATCH){
+            snatcher_ctx->state = EXTENSION_SNATCH;
+        }
+    }
+    return false;
 }
 
 /*** SNATCHER FUNCTIONS ***/

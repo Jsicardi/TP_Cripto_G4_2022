@@ -9,22 +9,29 @@ bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg){
     
     if(!load_from_file(msg, args->in_file)) return false;
 
+    printf("%d %d %d %d\n", msg->curr_byte_ptr[0], msg->curr_byte_ptr[1], msg->curr_byte_ptr[2], msg->curr_byte_ptr[3]);
+
+    if(args->enc == NONE){
+        printf("chau\n");
+        return true;
+    }
+
     size_t message_size;
 
-    if (!get_binary_message_size(&message_size, msg))                                               return false;
+    if (!get_binary_message_size(&message_size, msg))                                                   return false;
 
     uint8_t * encrypted_message = NULL, encrypted_bytes_arr[4];
     uint32_t encrypted_bytes;
-
-    if(!encrypt_message(msg->message, message_size, args, &encrypted_message, &encrypted_bytes))    return false;
     
-    if(!uint32_to_array_of_uint8(encrypted_bytes_arr, encrypted_bytes))                             return false;
+    if(!encrypt_message(msg->message, message_size, args, &encrypted_message, &encrypted_bytes))        return false;
+    
+    if(!uint32_to_array_of_uint8(encrypted_bytes_arr, encrypted_bytes))                                 return false;
 
-    if(!prepend_x_bytes(&encrypted_message, encrypted_bytes, 4, encrypted_bytes_arr))               return false;
+    if(!prepend_x_bytes(&encrypted_message, encrypted_bytes, 4, encrypted_bytes_arr))                   return false;
 
-    if(!close_loaded_file(msg))                                                                            return false;
+    if(!close_loaded_file(msg))                                                                         return false;
 
-    if(!load_binary_message(encrypted_message, encrypted_message + encrypted_bytes + 4 - 1, msg))   return false;
+    if(!load_binary_message(encrypted_message, encrypted_message + encrypted_bytes + 4 - 1, msg))       return false;
 
     return true;
 }

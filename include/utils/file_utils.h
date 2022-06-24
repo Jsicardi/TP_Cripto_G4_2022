@@ -25,6 +25,6 @@ bool load_from_file(BinaryMessage * msg, char * file_name);
 
 bool close_loaded_file(BinaryMessage * msg);
 
-bool load_to_file(BinaryMessage * msg, char * file_name);
+bool load_to_file(BinaryMessage * msg, char * file_name, uint32_t file_size);
 
 #endif
