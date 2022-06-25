@@ -21,6 +21,8 @@
 
 El proyecto fue desarrollado en C y se centra en la implementacion de un programa para ocultar mensajes dentro de archivos bmp y luego extraerlos, utilizando esteganografia. Este utiliza los algoritmos LSB1, LSB4 y LSBI.
 
+Adicionalmente, únicamente con el motivo de poder procesar resultados de comandos de linux de manera sencilla se incluyeron dentro de la carpeta analysis una serie de archivos Bash y Python. Los archivos de Python sirven para obtener promedios y desvíos estándar de la salida de los archivos bash. 
+
 ## Requerimientos
 
 - C
