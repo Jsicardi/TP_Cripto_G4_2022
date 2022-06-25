@@ -5,6 +5,22 @@
 #include <string.h>
 #include "../include/utils/args.h"
 
+void show_help(){
+    fprintf(stdout,
+        "Uso stegobmp\nParametros:\n\n"
+        "    -h          Imprime la ayuda y termina.\n\n"
+        "    --embed       Indica que se va a ocultar informacion. Requiere parametros --in --out --steg y -p\n\n"
+        "    --in <message>          Archivo a ocultarse\n\n"
+        "    -p <carrier.bmp>          Archivo bmp portador\n\n"
+        "    --out <out_file>         Archivo de salida (bmp portador con mensaje incrustado)\n\n"
+        "    --steg <LSB1|LSB4|LSBI>         Metodo de esteganografía a usar \n\n"
+        "    -a <aes128|aes192|aes256|des>         Metodo de encriptacion a utilizar \n\n"
+        "    -m <ecb|cfb|ofb|cbc>         Metodo de encriptacion a utilizar \n\n"
+        "    --pass <password>         Metodo de encriptacion a utilizar \n\n"
+
+   );
+}
+
 void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
 
     memset(args,0,sizeof(*args));
@@ -27,8 +43,8 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
         char_ret = getopt_long(argc, argv, "hp:a:m:",longopts,&index);
         switch (char_ret) {
             case 'h':
-                printf("Help\n");
-                break;
+                show_help();
+                exit(0);
             case 'p':
                 args->bmp_file = optarg;
                 break;
