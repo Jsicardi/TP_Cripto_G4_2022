@@ -95,7 +95,10 @@ bool cpy_msg_to_hide(uint8_t * msg_to_hide, uint32_t file_size, FILE * file_cont
 bool load_from_file(BinaryMessage * msg, char * file_name){
 
     FILE * file_descriptor = fopen(file_name, READ_BYTES_MODE);
-    if(file_descriptor == NULL) return false;
+    if(file_descriptor == NULL){
+        printf("Error.No file was found with name %s\n", file_name);
+        return false;
+    };
 
     uint32_t file_size;
     if(!get_file_size_from_file(&file_size, file_descriptor)) return false;
@@ -151,6 +154,7 @@ bool load_to_file(BinaryMessage * msg, char * file_name, uint32_t file_size){
     
     FILE * file_descriptor = fopen(full_file_name, WRITE_BYTES_MODE);
     if(file_descriptor == NULL) {
+        fprintf(stderr,"Error on creating output file\n");
         free(full_file_name);
         return false;
     }

@@ -80,7 +80,10 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
     };
 
     if(args->steg == LSB1 || args->steg == LSB4 || args->steg == LSBI){
-        if(!(*bmp_file_body_transformations[args->steg]) (bmp_file, &insert_lsb_pixel, &bi_msg, origin_fd, destination_fd)) return 4; // Error copying body pixels
+        if(!(*bmp_file_body_transformations[args->steg]) (bmp_file, &insert_lsb_pixel, &bi_msg, origin_fd, destination_fd)){
+            printf("Error embeding file in carrier\n");
+            return 4; // Error copying body pixels
+        }
     }
 
     /**********************************************************************************************/
@@ -138,7 +141,10 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     new_lsb_snatcher_ctx(&ctx);
 
     if(args->steg == LSB1 || args->steg == LSB4 || args->steg == LSBI){
-        if(!retrive_bmp_file_body(bmp_file, snatchers[args->steg], (void *) &ctx, &bi_msg, origin_fd)) return 4; // Error retrieving body pixels
+        if(!retrive_bmp_file_body(bmp_file, snatchers[args->steg], (void *) &ctx, &bi_msg, origin_fd)){
+            fprintf(stderr,"Error retrieving body pixels\n");
+            return 4; // Error retrieving body pixels
+        }
     }
 
     /**********************************************************************************************/
@@ -162,10 +168,14 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     if(args->enc == NONE){
         file_size = ctx.enc_bytes;
     } else {
-        if(!read_next_i32(&file_size, &bi_msg))         return false;
+        if(!read_next_i32(&file_size, &bi_msg)){         
+            fprintf(stderr, "Error on decrypt\n");
+            return 12;
+        }
     }
     
     if(!load_to_file(&bi_msg, args->out_file, file_size)){
+        fprintf(stderr, "Error on decrypt\n");
         unload_binary_message(&bi_msg, true);
         return 11;
     }
@@ -187,6 +197,11 @@ int main(int argc, char * argv[]){
     // Create filedescriptor for input bmp file
     FILE * origin_fd      = fopen(args->bmp_file, READ_BYTES_MODE);
 
+    if(origin_fd == NULL){
+        fprintf(stderr,"Error.No carrier was found with name %s\n",args->bmp_file);
+        exit(-1);
+    }
+
     BmpFile bmp_file;
 
     int (*actions[]) (struct stegobmp_args *, BmpFile *, FILE *) = {
@@ -197,7 +212,7 @@ int main(int argc, char * argv[]){
 
     if(args->action == EMBED || args->action == EXTRACT){
         int ret_val = (*actions[args->action]) (args, &bmp_file, origin_fd);
-        if(ret_val != 0) return ret_val;
+        if(ret_val != 0) exit(-1);
     }
 
     fclose(origin_fd);
