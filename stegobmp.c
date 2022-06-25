@@ -48,7 +48,10 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
     if(!pack_message_from_file(args, &bi_msg)) return 8;
     /********************************************************/
 
-    if(!message_can_be_stego(bmp_file, args->steg, &bi_msg)) return 7;
+    if(!message_can_be_stego(bmp_file, args->steg, &bi_msg)) {
+        if(!unload_binary_message(&bi_msg, true)) return 9;
+        return 7;
+    }
 
     FILE * destination_fd = fopen(args->out_file, WRITE_BYTES_MODE);
 
@@ -66,7 +69,7 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
     if(!copy_bmp_file_offset(bmp_file, origin_fd, destination_fd)) return 3; // Could not copy BMP File's offset bytes. Could be that metadata is not correct.*/
 
     /***********************************************************************/
-
+    
     /*** Transform input bmp file body to hide BinaryMessage and output it onto the output file ***/
 
     bool (*bmp_file_body_transformations[])(BmpFile *,bool (*) (Pixel*, BinaryMessage *,int),BinaryMessage *, FILE *, FILE *) = {

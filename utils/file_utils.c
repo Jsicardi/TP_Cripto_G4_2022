@@ -109,12 +109,12 @@ bool load_from_file(BinaryMessage * msg, char * file_name){
         free(extension);
         return false;
     }
-    
+
     if(!cpy_msg_to_hide(msg_to_hide, file_size, file_descriptor, extension, extension_size)){
         free(extension);
         free(msg_to_hide);
         return false;
-    } 
+    }
 
     free(extension);
 

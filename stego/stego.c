@@ -18,8 +18,12 @@ bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg){
              */
 
             available_hiding_place = bmp_body_size_in_pixels*3 / 8;
-
-            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) return false;
+            
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place){
+                printf("Message cannot be stego. Max capacity is %zu\n", available_hiding_place);
+                return false;
+            }
+            
             return true;
     
         case LSB4:
@@ -30,7 +34,10 @@ bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg){
             
             available_hiding_place = bmp_body_size_in_pixels*3 / 2;
 
-            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) return false;
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || message_size_in_bytes > available_hiding_place) {
+                printf("Message cannot be stego. Max capacity is %zu\n", available_hiding_place);
+                return false;
+            }
             return true;
 
         case LSBI:
@@ -40,7 +47,11 @@ bool message_can_be_stego(BmpFile * bmp, int lsb_type, BinaryMessage * msg){
                 4 bits for pattern inversion)
              */
             available_hiding_place = bmp_body_size_in_pixels*3 / 8;
-            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || (message_size_in_bytes + 4) > available_hiding_place) return false;
+            
+            if(message_size_in_bytes < 0 || available_hiding_place <= 0 || (message_size_in_bytes + 4) > available_hiding_place){
+                printf("Message cannot be stego. Max capacity is %zu\n", available_hiding_place - 4);
+                return false;
+            } 
             return true;
     }
     return false;
