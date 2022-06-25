@@ -9,6 +9,12 @@
 #include "include/utils/packing_utils.h"
 
 struct stegobmp_args * args;
+char* actions[3] = {"-","Embed","Extract"};
+char* steg[4] = {"-","LSB1","LSB4","LSBI"};
+char* enc[5] = {"None","AES-128","AES-192","AES-256","DES"};
+char* modes[5] = {"None","ECB","CFB","OFB","CBC"};
+
+
 
 int check_if_compressed(BmpFile * bmp_file, FILE * origin_fd){
 
@@ -140,7 +146,8 @@ int main(int argc, char * argv[]){
     /*** Load program arguments into stegobmp_args structure ***/
     args = malloc(sizeof(struct stegobmp_args));
     parse_args(argc,argv,args);
-    printf("Action: %d In-file: %s BMP-file: %s out-file:%s Stego:%d Enc:%d Mode:%d Pass:%s\n", args->action,args->in_file,args->bmp_file,args->out_file,args->steg,args->enc,args->mode,args->password);
+    fprintf(stdout,"Parametros:\n"
+    "Accion: %s\nArchivo: %s\nPortador: %s\nDestino:%s\nEsteganografia:%s\nEncricpion:%s\nModo:%s\nPassword:%s\n", actions[args->action],args->in_file,args->bmp_file,args->out_file,steg[args->steg],enc[args->enc],modes[args->mode],args->password);
     /***********************************************************/
 
     // Create filedescriptor for input bmp file
