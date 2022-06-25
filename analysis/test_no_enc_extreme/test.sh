@@ -1,6 +1,6 @@
 CWD=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 IN_FILE="$CWD/resources/back_to_the_future.txt"
-BMP_FILE="$CWD/resources/white.bmp"
+BMP_FILE="$CWD/resources/black.bmp"
 OUT_FOLDER="$CWD/results"
 cd $CWD/../../
 make
