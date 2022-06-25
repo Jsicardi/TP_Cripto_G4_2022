@@ -350,6 +350,29 @@ bool skip_ahead_of_message(size_t bytes, BinaryMessage * msg){
     return true;
 }
 
+bool add_writeable_bytes(size_t bytes, BinaryMessage * msg){
+    size_t msg_size          = msg->last_byte_ptr - msg->message + 1;
+    size_t curr_displacement = msg->curr_byte_ptr - msg->message;
+
+    msg->message = realloc(msg->message, msg_size + bytes);
+
+    if(msg->message == NULL){
+        
+        bytes   = 0;
+        msg     = NULL;
+
+        return false;
+    }
+
+    msg->curr_byte_ptr = msg->message + curr_displacement;
+    msg->last_byte_ptr = msg->message + msg_size + bytes - 1;
+        
+    bytes   = 0;
+    msg     = NULL;
+
+    return true;
+}
+
 uint8_t bit_identity(uint8_t bit){
     return bit;
 }

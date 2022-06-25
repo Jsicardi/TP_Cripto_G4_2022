@@ -201,7 +201,7 @@ bool snatched_bit_into_binary_message(uint8_t * byte, uint8_t bit_position, Bina
     and so.
 */
 
-bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position,bool is_lsbi);
+bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position,bool is_lsbi);
 
 bool new_lsb_snatcher_ctx(LsbSnatcherCtx * snatcher_ctx){
     
@@ -238,7 +238,7 @@ bool snatched_bit_into_binary_message(uint8_t * byte, uint8_t bit_position, Bina
     return true;
 }
 
-bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position, bool is_lsbi){
+bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position, bool is_lsbi){
     
     LsbSnatcherCtx * snatcher_ctx = (LsbSnatcherCtx *) ctx;
 
@@ -272,7 +272,7 @@ bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first
                 snatcher_ctx->state = SIZE_SNATCH;
             }
             //Recursive call to start on PATTERN_SNATCH or SIZE_PATTERN and process the first bit
-            return lsb_snatcher(byte,ctx,msg,first_low_bit_position,is_lsbi);
+            return enc_lsb_snatcher(byte,ctx,msg,first_low_bit_position,is_lsbi);
         }
         case PATTERN_SNATCH:
             {
@@ -380,16 +380,77 @@ bool lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first
     return false;
 }
 
-bool lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
-    return lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1,false);
+bool enc_lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1, false);
 }
 
-bool lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
-    return lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB4,false);
+bool enc_lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB4, false);
 }
 
-bool lsbi_snatcher(uint8_t * byte, void *ctx, BinaryMessage *msg){
-    return lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1,true);
+bool enc_lsbi_snatcher(uint8_t * byte, void *ctx, BinaryMessage *msg){
+    return enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1, true);
+}
+
+bool no_enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t first_low_bit_position, bool is_lsbi) {
+    LsbSnatcherCtx * snatcher_ctx   = (LsbSnatcherCtx *) ctx;
+
+    if(snatcher_ctx->state == EXTENSION_SNATCH){
+        for(uint8_t i = first_low_bit_position; i < BITS_IN_BYTE; i++){
+            if(!snatched_bit_into_binary_message(byte, i, &(snatcher_ctx->w_msg), snatcher_ctx->pattern_functions)) return false;
+
+            if(snatcher_ctx->w_msg.curr_byte_ptr > snatcher_ctx->w_msg.last_byte_ptr){
+                if(*(snatcher_ctx->w_msg.last_byte_ptr) == 0){
+                    snatcher_ctx->state = FINISHED_SNATCH;
+                } else {
+                    if(!add_writeable_bytes(1, &(snatcher_ctx->w_msg))){
+                        if(!unload_binary_message(&(snatcher_ctx->w_msg), true)) return false;
+                        return false;
+                    }
+                    if(!copy_binary_message(&(snatcher_ctx->w_msg), msg)){
+                        if(!unload_binary_message(&(snatcher_ctx->w_msg), true)) return false;
+                        return false;
+                    }
+                    msg->curr_byte_ptr  = msg->message;
+                    msg->curr_bit       = 0;
+                }
+                
+            }
+        }
+        return true;
+    }
+    lsb_snatcher_state_t prev_state = snatcher_ctx->state;
+
+    bool ret_val = enc_lsb_snatcher(byte, ctx, msg, first_low_bit_position, is_lsbi);
+    if(ret_val == false) return false;
+
+    // Captures state after finishing reading message and sets it so it reads the extension
+    if(prev_state == MESSAGE_SNATCH && snatcher_ctx->state == FINISHED_SNATCH){
+        snatcher_ctx->state = EXTENSION_SNATCH;
+        if(!add_writeable_bytes(1, &(snatcher_ctx->w_msg))){
+            if(!unload_binary_message(&(snatcher_ctx->w_msg), true)) return false;
+            return false;
+        }
+        if(!copy_binary_message(&(snatcher_ctx->w_msg), msg)){
+            if(!unload_binary_message(&(snatcher_ctx->w_msg), true)) return false;
+            return false;
+        }
+        msg->curr_byte_ptr  = msg->message;
+        msg->curr_bit       = 0;
+    }
+    return true;
+}
+
+bool no_enc_lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return no_enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1, false);
+}
+
+bool no_enc_lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg){
+    return no_enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB4, false);
+}
+
+bool no_enc_lsbi_snatcher(uint8_t * byte, void *ctx, BinaryMessage *msg){
+    return no_enc_lsb_snatcher(byte, ctx, msg, FIST_LOW_BIT_POSITION_LSB1, true);
 }
 
 /*** SNATCHER FUNCTIONS ***/

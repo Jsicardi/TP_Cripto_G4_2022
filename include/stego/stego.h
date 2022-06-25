@@ -19,7 +19,7 @@ void get_inversion_functions(BmpBody body,BinaryMessage *msg, FILE * origin_fd,u
 
 bool invert_lsbi_message_bits(BmpBody body,BinaryMessage *msg, FILE * origin_fd,uint8_t (*pattern_functions[]) (uint8_t bit));
 
-typedef enum { INIT_SNATCH,PATTERN_SNATCH, SIZE_SNATCH, MESSAGE_SNATCH, FINISHED_SNATCH } lsb_snatcher_state_t;
+typedef enum { INIT_SNATCH, PATTERN_SNATCH, SIZE_SNATCH, MESSAGE_SNATCH, EXTENSION_SNATCH, FINISHED_SNATCH } lsb_snatcher_state_t;
 
 //TODO add inversion functions (default is identity for all, then change while parsing pattern bytes in lsbi)
 typedef struct {
@@ -43,7 +43,7 @@ bool new_lsb_snatcher_ctx(LsbSnatcherCtx * snatcher_ctx);
     lsb1_snatcher retrives only last bit of every byte.
  */
 
-bool lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+bool enc_lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
 
 /*
     Given a byte pointer, a LsbSnatcherCtx and a BinaryMessage, loads the cypher onto the BinaryMessage
@@ -52,7 +52,7 @@ bool lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
     lsb4_snatcher retrives last four (4) bits of every byte.
  */
 
-bool lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+bool enc_lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
 
 /*
     Given a byte pointer, a LsbSnatcherCtx and a BinaryMessage, loads the cypher onto the BinaryMessage
@@ -61,6 +61,20 @@ bool lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
     lsb4_snatcher retrives last bit of every byte but uses inversion when needed.
  */
 
-bool lsbi_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+bool enc_lsbi_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+
+/*
+    no_enc work similarly to their enc counterparts but also read
+    the file extension after the file.
+
+    file_size will be the LsbContext enc_bytes variables and after those bytes till the
+    trailing \0 the extension will be placed.
+ */
+
+bool no_enc_lsb1_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+
+bool no_enc_lsb4_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg);
+
+bool no_enc_lsbi_snatcher(uint8_t * byte, void *ctx, BinaryMessage *msg);
 
 #endif

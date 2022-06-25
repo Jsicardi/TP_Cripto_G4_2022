@@ -105,12 +105,31 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
 
     /*** Snatches input bmp file body hidden message into BinaryMessage ***/
 
-    bool (*snatchers[])(uint8_t *, void *, BinaryMessage *) = {
+    bool (**snatchers)(uint8_t *, void *, BinaryMessage *);
+
+    // Snatcher functions for unencrypted texts
+
+    bool (*no_enc_snatchers[4])(uint8_t *, void *, BinaryMessage *) = {
         NULL,
-        lsb1_snatcher,
-        lsb4_snatcher,
-        lsbi_snatcher
+        no_enc_lsb1_snatcher,
+        no_enc_lsb4_snatcher,
+        no_enc_lsbi_snatcher
     };
+
+    // Snatcher functions for encrypted text
+
+    bool (*enc_snatchers[4])(uint8_t *, void *, BinaryMessage *) = {
+        NULL,
+        enc_lsb1_snatcher,
+        enc_lsb4_snatcher,
+        enc_lsbi_snatcher
+    };
+
+    if(args->enc == NONE){
+        snatchers = no_enc_snatchers;
+    } else {
+        snatchers = enc_snatchers;
+    }
 
     LsbSnatcherCtx ctx;
 
@@ -122,16 +141,29 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
 
     /**********************************************************************************************/
 
-    uint8_t * message = malloc(MAX_ENCR_LENGTH);
-    uint32_t decrypted_bytes = 0;
+    uint8_t * message;
+    int32_t decrypted_bytes;
 
-    decrypt_message(bi_msg.message, (size_t) ctx.enc_bytes, args, message, &decrypted_bytes);
+    if(args->enc != NONE){
 
-    if(!unload_binary_message(&bi_msg, true)) return 10;
+        message = malloc(MAX_ENCR_LENGTH);
 
-    if(!load_binary_message(message, message + decrypted_bytes - 1, &bi_msg)) return 10;
+        decrypt_message(bi_msg.message, (size_t) ctx.enc_bytes, args, message, &decrypted_bytes);
 
-    if(!load_to_file(&bi_msg, args->out_file)){
+        if(!unload_binary_message(&bi_msg, true)) return 10;
+
+        if(!load_binary_message(message, message + decrypted_bytes - 1, &bi_msg)) return 10;
+    }
+
+    uint32_t file_size;
+
+    if(args->enc == NONE){
+        file_size = ctx.enc_bytes;
+    } else {
+        if(!read_next_i32(&file_size, &bi_msg))         return false;
+    }
+    
+    if(!load_to_file(&bi_msg, args->out_file, file_size)){
         unload_binary_message(&bi_msg, true);
         return 11;
     }

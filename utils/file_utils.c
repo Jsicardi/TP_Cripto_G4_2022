@@ -132,10 +132,7 @@ bool close_loaded_file(BinaryMessage * msg){
     return unload_binary_message(msg, true);
 }
 
-bool load_to_file(BinaryMessage * msg, char * file_name){
-
-    uint32_t file_size;
-    if(!read_next_i32(&file_size, msg))             return false;
+bool load_to_file(BinaryMessage * msg, char * file_name, uint32_t file_size){
 
     BinaryMessage file_content;
 

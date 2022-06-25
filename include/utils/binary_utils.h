@@ -136,6 +136,12 @@ bool read_next_i32(uint32_t * next_i32, BinaryMessage * msg);
 
 bool skip_ahead_of_message(size_t bytes, BinaryMessage * msg);
 
+/*
+    Given a BinaryMessage initialized with writeable_binary_message, adds bytes bytes to the message.
+ */
+
+bool add_writeable_bytes(size_t bytes, BinaryMessage * msg);
+
 uint8_t bit_identity(uint8_t bit);
 
 uint8_t bit_inversion(uint8_t bit);
