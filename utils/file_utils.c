@@ -133,27 +133,14 @@ bool close_loaded_file(BinaryMessage * msg){
 }
 
 bool load_to_file(BinaryMessage * msg, char * file_name, uint32_t file_size){
-    printf("1\n");
-
-    if(file_size < 0){
-        if(!read_next_i32(&file_size, msg))         return false;
-    }
-
-    printf("2\n");
 
     BinaryMessage file_content;
 
     if(!copy_binary_message(msg, &file_content))    return false;
 
-    printf("3\n");
-
     if(!skip_ahead_of_message(file_size, msg))      return false;
-
-    printf("4\n");
     
     size_t extension_size = strlen(msg->curr_byte_ptr), file_name_size = strlen(file_name);
-
-    
 
     char * full_file_name = malloc(file_name_size + extension_size + 1);
     if(full_file_name == NULL) return false;

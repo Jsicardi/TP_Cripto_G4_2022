@@ -104,7 +104,10 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     // Snatcher functions for unencrypted texts
 
     bool (*no_enc_snatchers[4])(uint8_t *, void *, BinaryMessage *) = {
-        NULL
+        NULL,
+        no_enc_lsb1_snatcher,
+        no_enc_lsb4_snatcher,
+        no_enc_lsbi_snatcher
     };
 
     // Snatcher functions for encrypted text
@@ -112,11 +115,12 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     bool (*enc_snatchers[4])(uint8_t *, void *, BinaryMessage *) = {
         NULL,
         enc_lsb1_snatcher,
-        enc_lsb4_snatcher
+        enc_lsb4_snatcher,
+        enc_lsbi_snatcher
     };
 
     if(args->enc == NONE){
-
+        snatchers = no_enc_snatchers;
     } else {
         snatchers = enc_snatchers;
     }
@@ -130,27 +134,30 @@ int extract(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd) {
     }
 
     /**********************************************************************************************/
-    printf("hola\n");
 
     uint8_t * message;
     int32_t decrypted_bytes;
 
     if(args->enc != NONE){
 
-        message = malloc(5000);
+        message = malloc(MAX_ENCR_LENGTH);
 
-        decrypt_message(bi_msg.message, ctx.enc_bytes, args, message, &decrypted_bytes);
+        decrypt_message(bi_msg.message, (size_t) ctx.enc_bytes, args, message, &decrypted_bytes);
 
         if(!unload_binary_message(&bi_msg, true)) return 10;
 
         if(!load_binary_message(message, message + decrypted_bytes - 1, &bi_msg)) return 10;
     }
 
-    printf("chau\n");
-    printf("%c %c %c %c\n", bi_msg.message[0], bi_msg.message[1], bi_msg.message[2], bi_msg.message[3]);
+    uint32_t file_size;
 
-    if(!load_to_file(&bi_msg, args->out_file, args->enc == NONE ? ctx.enc_bytes : -1)){
-        printf("failed\n");
+    if(args->enc == NONE){
+        file_size = ctx.enc_bytes;
+    } else {
+        if(!read_next_i32(&file_size, &bi_msg))         return false;
+    }
+    
+    if(!load_to_file(&bi_msg, args->out_file, file_size)){
         unload_binary_message(&bi_msg, true);
         return 11;
     }

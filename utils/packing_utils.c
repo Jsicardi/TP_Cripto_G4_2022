@@ -9,10 +9,7 @@ bool pack_message_from_file(struct stegobmp_args * args, BinaryMessage * msg){
     
     if(!load_from_file(msg, args->in_file)) return false;
 
-    printf("%d %d %d %d\n", msg->curr_byte_ptr[0], msg->curr_byte_ptr[1], msg->curr_byte_ptr[2], msg->curr_byte_ptr[3]);
-
     if(args->enc == NONE){
-        printf("chau\n");
         return true;
     }
 
