@@ -21,6 +21,7 @@ int check_if_compressed(BmpFile * bmp_file, FILE * origin_fd){
     if(!read_bmp_file_metadata(bmp_file, &bmp_file_is_uncompressed, origin_fd)) {
 
         if(bmp_file_is_compressed(bmp_file)){
+            fprintf(stderr,"Error. Carrier is compressed\n");
             return 1; // File is compressed
         }
 
