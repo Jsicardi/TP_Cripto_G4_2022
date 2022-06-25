@@ -147,7 +147,7 @@ int main(int argc, char * argv[]){
     args = malloc(sizeof(struct stegobmp_args));
     parse_args(argc,argv,args);
     fprintf(stdout,"Parametros:\n"
-    "Accion: %s\nArchivo: %s\nPortador: %s\nDestino:%s\nEsteganografia:%s\nEncricpion:%s\nModo:%s\nPassword:%s\n", actions[args->action],args->in_file,args->bmp_file,args->out_file,steg[args->steg],enc[args->enc],modes[args->mode],args->password);
+    "   Accion: %s\n   Archivo: %s\n   Portador: %s\n   Destino:%s\n   Esteganografia:%s\n   Encricpion:%s\n   Modo:%s\n   Password:%s\n", actions[args->action],args->in_file,args->bmp_file,args->out_file,steg[args->steg],enc[args->enc],modes[args->mode],args->password);
     /***********************************************************/
 
     // Create filedescriptor for input bmp file
