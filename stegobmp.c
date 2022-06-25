@@ -11,8 +11,8 @@
 struct stegobmp_args * args;
 char* actions[3] = {"-","Embed","Extract"};
 char* steg[4] = {"-","LSB1","LSB4","LSBI"};
-char* enc[5] = {"None","AES-128","AES-192","AES-256","DES"};
-char* modes[5] = {"None","ECB","CFB","OFB","CBC"};
+char* enc[5] = {"-","AES-128","AES-192","AES-256","DES"};
+char* modes[5] = {"-","ECB","CFB","OFB","CBC"};
 
 
 
@@ -43,8 +43,6 @@ int embed(struct stegobmp_args * args, BmpFile * bmp_file, FILE * origin_fd){
 
     /*** Load secret message onto BinaryMessage structure ***/
     BinaryMessage bi_msg;
-    
-    printf("%s\n", args->in_file);
 
     if(!pack_message_from_file(args, &bi_msg)) return 8;
     /********************************************************/
@@ -179,7 +177,7 @@ int main(int argc, char * argv[]){
     args = malloc(sizeof(struct stegobmp_args));
     parse_args(argc,argv,args);
     fprintf(stdout,"Parametros:\n"
-    "   Accion: %s\n   Archivo: %s\n   Portador: %s\n   Destino:%s\n   Esteganografia:%s\n   Encricpion:%s\n   Modo:%s\n   Password:%s\n", actions[args->action],args->in_file,args->bmp_file,args->out_file,steg[args->steg],enc[args->enc],modes[args->mode],args->password);
+    "   Accion: %s\n   Archivo: %s\n   Portador: %s\n   Destino: %s\n   Esteganografia: %s\n   Encricpion: %s\n   Modo: %s\n   Password: %s\n", actions[args->action],((args->action == EMBED)? args->in_file : "-"),args->bmp_file,args->out_file,steg[args->steg],enc[args->enc],modes[args->mode],((args->enc != NONE) ? args->password : "-"));
     /***********************************************************/
 
     // Create filedescriptor for input bmp file
@@ -193,7 +191,7 @@ int main(int argc, char * argv[]){
         extract
     };
 
-    if(args->action == EMBEED || args->action == EXTRACT){
+    if(args->action == EMBED || args->action == EXTRACT){
         int ret_val = (*actions[args->action]) (args, &bmp_file, origin_fd);
         if(ret_val != 0) return ret_val;
     }

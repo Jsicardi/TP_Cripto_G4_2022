@@ -242,8 +242,6 @@ bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t f
     
     LsbSnatcherCtx * snatcher_ctx = (LsbSnatcherCtx *) ctx;
 
-    //printf("State: %d\n", snatcher_ctx->state);
-
     switch(snatcher_ctx->state){
         case INIT_SNATCH:
         {
@@ -304,7 +302,6 @@ bool enc_lsb_snatcher(uint8_t * byte, void * ctx, BinaryMessage * msg, uint8_t f
 
                             if(bit == 1){
                                 snatcher_ctx->pattern_functions[curr_bit] = &bit_inversion;
-                                //printf("Inversion function detected\n");
                             }
                         }
                         

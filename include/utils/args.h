@@ -2,7 +2,7 @@
 #define __ARGS_H_
 
 #define NONE 0
-#define EMBEED 1
+#define EMBED 1
 #define EXTRACT 2
 
 #define LSB1 1

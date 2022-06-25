@@ -85,7 +85,7 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
                 }
                 break;
             case 0:
-                args->action = EMBEED;
+                args->action = EMBED;
                 break;
             case 1:
                 args->action = EXTRACT;
@@ -126,7 +126,7 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
         printf("Action parameter required\n");
         exit(1);
     }
-    if(args->action == EMBEED && (args->in_file == 0 || args->bmp_file == 0 || args->out_file == 0 || args->steg == NONE)){
+    if(args->action == EMBED && (args->in_file == 0 || args->bmp_file == 0 || args->out_file == 0 || args->steg == NONE)){
         printf("--in,--out,-p and --steg parameters are required for action embed\n");
         exit(1);
     }
@@ -134,11 +134,12 @@ void parse_args(const int argc, char ** argv, struct stegobmp_args * args){
         printf("--out,-p and --steg parameters are required for action extract\n");
         exit(1);
     }
+
     if(args->password != 0 && args->enc == NONE){
         args->enc = AES_128;
     }
-    if(args->password != 0 && args->mode == NONE){
-        args->enc = CBC;
+    if(args->password != NONE && args->mode == NONE){
+        args->mode = CBC;
     }
     if((args->enc != NONE || args->mode != NONE) && args->password == 0){
         args->enc = NONE;
